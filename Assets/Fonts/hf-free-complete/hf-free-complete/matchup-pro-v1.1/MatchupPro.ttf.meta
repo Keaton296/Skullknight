@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 0996e54dbb7e4b242a48ea2caee9682f
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - MatchupPro
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 173c89cacb9d0eb468bc51630106252c, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

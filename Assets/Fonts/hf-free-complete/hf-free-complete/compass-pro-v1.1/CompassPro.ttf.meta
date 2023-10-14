@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 953f57d290c770547ac7c80fb461c63b
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - CompassPro
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 536c12b43b0ee24449da1f168504e2e4, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

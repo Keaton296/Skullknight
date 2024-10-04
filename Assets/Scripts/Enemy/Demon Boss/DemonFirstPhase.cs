@@ -4,10 +4,8 @@ using UnityEngine;
 using DG.Tweening;
 using Cinemachine;
 
-public class DemonStateFirstPhase : MonoBehaviour, IState
+public class DemonFirstPhase : DemonState
 {
-    [Header("DemonBossController")]
-    [SerializeField] DemonBossController controller;
     [Space]
     [SerializeField] Animator breathAnimator;
     [SerializeField] Collider2D playerOnFloorChecker;
@@ -27,34 +25,39 @@ public class DemonStateFirstPhase : MonoBehaviour, IState
     [SerializeField] Transform firePoint;
     Coroutine moveMakerCoroutine;
 
-    public void OnStateStart()
+    public DemonFirstPhase(DemonBossController controller) : base(controller)
     {
-        moveMakerCoroutine = StartCoroutine(MoveMaker(controller));
+        this.controller = controller;
     }
 
-    public void OnStateEnd()
+    public override void OnStateStart()
+    {
+        moveMakerCoroutine = controller.StartCoroutine(MoveMaker(controller));
+    }
+
+    public override void OnStateEnd()
     {
 
     }
 
-    public void StateFixedUpdate()
+    public override void StateFixedUpdate()
     {
         if (controller.canMove)
         {
-            if(controller.moveTarget == controller.playerTransform) transform.position = Vector2.Lerp(transform.position, (Vector2)controller.moveTarget.position + controller.fireBreathDemonOffset, controller.moveLerpSpeed);
-            else transform.position = Vector2.Lerp(transform.position, (Vector2)controller.moveTarget.position, controller.moveLerpSpeed);
+            if(controller.moveTarget == controller.playerTransform) controller.transform.position = Vector2.Lerp(controller.transform.position, (Vector2)controller.moveTarget.position + controller.fireBreathDemonOffset, controller.moveLerpSpeed);
+            else controller.transform.position = Vector2.Lerp(controller.transform.position, (Vector2)controller.moveTarget.position, controller.moveLerpSpeed);
         }
         if(controller.Health <= 0)
         {
-            StopAllCoroutines();
+            controller.StopAllCoroutines();
             controller.animator.SetTrigger("idle");
-            controller.DemonState = controller.demonStateSecondPhase;
+            controller.DemonState = controller.DemonSecondPhase;
         }
     }
 
-    public void StateUpdate()
+    public override void StateUpdate()
     {
-        if (controller.playerTransform.position.x - transform.position.x > 0 && controller.canTurn)
+        if (controller.playerTransform.position.x - controller.transform.position.x > 0 && controller.canTurn)
         {
             controller.spriteRenderer.flipX = true;
         }
@@ -63,21 +66,27 @@ public class DemonStateFirstPhase : MonoBehaviour, IState
             controller.spriteRenderer.flipX = false;
         }
     }
+
+    public override bool IsAccessible()
+    {
+        throw new System.NotImplementedException();
+    }
+
     IEnumerator MoveMaker(DemonBossController controller)
     {
         while (true)
         {
             if (Physics2D.BoxCast(playerOnFloorChecker.bounds.center, playerOnFloorChecker.bounds.size, 0f, Vector2.zero, 0f, playerLayerMask).transform != null)
             {
-                controller.currentMove = StartCoroutine(BreathAttack(controller));
+                controller.currentMove = controller.StartCoroutine(BreathAttack(controller));
             }
             else
             {
-                controller.currentMove = StartCoroutine(FireBallAttack(controller));
+                controller.currentMove = controller.StartCoroutine(FireBallAttack(controller));
             }
             yield return new WaitUntil(() => controller.currentMove == null);
             yield return new WaitForSeconds(inBetweenWaitDuration);
-            controller.currentMove = StartCoroutine(controller.GoToPlace(controller,controller.flyingPlaceTransform));
+            controller.currentMove = controller.StartCoroutine(controller.GoToPlace(controller,controller.flyingPlaceTransform));
             yield return new WaitUntil(() => controller.currentMove == null);
             yield return new WaitForSeconds(inBetweenWaitDuration);
         }
@@ -123,7 +132,7 @@ public class DemonStateFirstPhase : MonoBehaviour, IState
     }
     void ShootFireball(Transform target)
     {
-        Fireball script = Instantiate(fireballObject,firePoint.position,Quaternion.identity).GetComponent<Fireball>();
+        Fireball script = GameObject.Instantiate(fireballObject,firePoint.position,Quaternion.identity).GetComponent<Fireball>();
         script.SetFireball(target);
     }
     public void SetBreathAttackCheckTrue(int index)

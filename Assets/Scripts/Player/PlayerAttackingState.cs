@@ -2,36 +2,37 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerAttackingState : MonoBehaviour,IState
+public class PlayerAttackingState : PlayerState
 {
     [Header("PlayerController")]
     [SerializeField] PlayerController controller;
-    public void OnStateEnd()
+
+    public PlayerAttackingState(PlayerController controller) : base(controller)
+    {
+        this.controller = controller;
+    }
+
+    public override void OnStateEnd()
     {
         controller.currentActionCoroutine = null;
     }
 
-    public void OnStateStart()
+    public override void OnStateStart()
     {
-        controller.swing0 = false;
-        controller.swing0Ended = false;
-        controller.swing1Triggered = false;
-        controller.swing1 = false;
-        controller.swing1Ended = false;
-        controller.currentActionCoroutine = StartCoroutine(controller.AttackZero());
+        // controller.swing0 = false;
+        // controller.swing0Ended = false;
+        // controller.swing1Triggered = false;
+        // controller.swing1 = false;
+        // controller.swing1Ended = false;
+        //controller.currentActionCoroutine = controller.StartCoroutine(controller.AttackZero());
     }
-
-    public void StateFixedUpdate()
+    
+    public override void StateUpdate()
     {
+        // if(controller.swing0 && Input.GetMouseButtonDown(0))
+        // {
+        //     controller.swing1Triggered = true;
+        // }
         
-    }
-
-    public void StateUpdate()
-    {
-        if(controller.swing0 && Input.GetMouseButtonDown(0))
-        {
-            controller.swing1Triggered = true;
-        }
-        
-    }
+    } 
 }

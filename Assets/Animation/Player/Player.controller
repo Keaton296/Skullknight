@@ -557,7 +557,7 @@ AnimatorController:
     m_Controller: {fileID: 0}
   - m_Name: crouchWalkSpeed
     m_Type: 1
-    m_DefaultFloat: 0
+    m_DefaultFloat: 1
     m_DefaultInt: 0
     m_DefaultBool: 0
     m_Controller: {fileID: 0}
@@ -819,7 +819,7 @@ AnimatorState:
   m_TimeParameterActive: 0
   m_Motion: {fileID: 7400000, guid: 25e95b9da88eedd4595aa227f401b8e8, type: 2}
   m_Tag: 
-  m_SpeedParameter: runAnimSpeed
+  m_SpeedParameter: crouchWalkSpeed
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 
@@ -870,7 +870,7 @@ AnimatorState:
   m_TimeParameterActive: 0
   m_Motion: {fileID: 7400000, guid: 098ea97c8f03ec84380503e152fe07b7, type: 2}
   m_Tag: 
-  m_SpeedParameter: 
+  m_SpeedParameter: runAnimSpeed
   m_MirrorParameter: 
   m_CycleOffsetParameter: 
   m_TimeParameter: 

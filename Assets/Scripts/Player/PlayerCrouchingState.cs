@@ -1,58 +1,68 @@
-using System.Collections;
-using System.Collections.Generic;
+using System;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
-public class PlayerCrouchingState : MonoBehaviour,IState
+public class PlayerCrouchingState : PlayerState
 {
-    [Header("PlayerController")]
-    [SerializeField] PlayerController controller;
-    public void OnStateEnd()
+
+    public PlayerCrouchingState(PlayerController controller) : base(controller)
     {
-        controller.ActiveBoxCollider2D = controller.standingCollider;
+        this.controller = controller;
     }
 
-    public void OnStateStart()
+    public override void OnStateEnd()
+    {
+        controller.inputSystem.Default.Crouch.canceled -= OnCrouchCanceled;
+    }
+
+    public override void OnStateStart()
     {
         controller.ActiveBoxCollider2D = controller.crouchCollider;
+        controller.animator.SetTrigger("crouch");
+        
+        controller.inputSystem.Default.Crouch.canceled += OnCrouchCanceled;
     }
 
-    public void StateFixedUpdate()
+    private void OnCrouchCanceled(InputAction.CallbackContext context)
     {
-        if (controller.groundCollisionChecker.inTrigger)
+        if (!controller.standUpCollisionChecker.IsColliding)
         {
-            if (Input.GetAxisRaw("Horizontal") != 0)
-            {
-                controller.HorizontalMove(PlayerHorizontalMoveType.Crouch);
-            }
+            controller.PlayerState = controller.IdleState;   
+        }
+    }
+
+
+    public override void StateUpdate()
+    {
+        controller.RegenerateStamina();
+        
+        float horizontal = controller.inputSystem.Default.Horizontal.ReadValue<float>();
+        
+        if (horizontal != 0)
+        {
+            if(!controller.animator.GetCurrentAnimatorStateInfo(0).IsName("Crouchwalk")) controller.animator.SetTrigger("crouchwalk");
+            float crouchWalkProgress = Mathf.Abs(controller.rb.velocity.x) / controller.maxCrouchingVelocity;
+            controller.animator.SetFloat("crouchWalkSpeed",crouchWalkProgress);
         }
         else
         {
-            controller.PlayerState = controller.playerOnAirState;
+            if(!controller.animator.GetCurrentAnimatorStateInfo(0).IsName("Crouch")) controller.animator.SetTrigger("crouch");
         }
-        
     }
 
-    public void StateUpdate()
+    public override void StateFixedUpdate()
     {
-        
-        if(Input.GetAxisRaw("Horizontal") == 0)
+        float horizontal = controller.inputSystem.Default.Horizontal.ReadValue<float>();
+        float crouch = controller.inputSystem.Default.Crouch.ReadValue<float>();
+        if (controller.groundCollisionChecker.IsColliding)
         {
-            if (!controller.animator.GetCurrentAnimatorStateInfo(0).IsName("Crouch")) controller.animator.SetTrigger("crouch");
-        }
-        if (Input.GetKey(KeyCode.S))
-        {
-            return;
+            if(horizontal != 0) controller.Crouchwalk(horizontal);
+            if (crouch == 0 && !controller.standUpCollisionChecker.IsColliding) controller.PlayerState = controller.IdleState;
         }
         else
         {
-            if (controller.standUpCollisionChecker.inTrigger)
-            {
-                return;
-            }
-            else
-            {
-                controller.PlayerState = controller.playerStandingState;
-            }
+            //to falling
+            throw new NotImplementedException();
         }
     }
 }

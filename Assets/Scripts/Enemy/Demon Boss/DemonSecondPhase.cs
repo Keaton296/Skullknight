@@ -4,37 +4,47 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DemonStateSecondPhase : MonoBehaviour, IState
+public class DemonSecondPhase : DemonState
 {
-    [Header("DemonBossController")]
-    [SerializeField] DemonBossController controller;
     [Space]
     bool transformCry = false;
     bool transformCryEnd = false;
-    public void OnStateStart()
+
+    public DemonSecondPhase(DemonBossController controller) : base(controller)
+    {
+        this.controller = controller;
+    }
+
+    public override void OnStateStart()
     {
         transformCry = false;
         transformCryEnd = false;
-        StartCoroutine(MoveMaker());
+        controller.StartCoroutine(MoveMaker());
     }
 
-    public void OnStateEnd()
+    public override void OnStateEnd()
     {
 
     }
 
-    public void StateFixedUpdate()
+    public override void StateFixedUpdate()
     {
 
     }
-    public void StateUpdate()
+    public override void StateUpdate()
     {
         if (controller.canMove)
         {
-            if (controller.moveTarget == controller.playerTransform) transform.position = Vector2.Lerp(transform.position, (Vector2)controller.moveTarget.position + controller.fireBreathDemonOffset, controller.moveLerpSpeed);
-            else transform.position = Vector2.Lerp(transform.position, (Vector2)controller.moveTarget.position, controller.moveLerpSpeed);
+            if (controller.moveTarget == controller.playerTransform) controller.transform.position = Vector2.Lerp(controller.transform.position, (Vector2)controller.moveTarget.position + controller.fireBreathDemonOffset, controller.moveLerpSpeed);
+            else controller.transform.position = Vector2.Lerp(controller.transform.position, (Vector2)controller.moveTarget.position, controller.moveLerpSpeed);
         }
     }
+
+    public override bool IsAccessible()
+    {
+        throw new System.NotImplementedException();
+    }
+
     IEnumerator PhaseTransform()
     {
         controller.animator.SetTrigger("transform");
@@ -48,10 +58,10 @@ public class DemonStateSecondPhase : MonoBehaviour, IState
     IEnumerator MoveMaker()
     {
         Debug.Log("start");
-        controller.currentMove = StartCoroutine(controller.GoToPlace(controller, controller.flyingPlaceTransform));
+        controller.currentMove = controller.StartCoroutine(controller.GoToPlace(controller, controller.flyingPlaceTransform));
         yield return new WaitUntil(()=> controller.currentMove == null);
         Debug.Log("end");
-        controller.currentMove = StartCoroutine(PhaseTransform());
+        controller.currentMove = controller.StartCoroutine(PhaseTransform());
         yield return new WaitUntil(()=> controller.currentMove == null);
 
     }

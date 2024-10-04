@@ -1,43 +1,65 @@
 using System.Collections;
 using System.Collections.Generic;
+using System.Numerics;
 using UnityEngine;
+using Vector2 = UnityEngine.Vector2;
 
-public class PlayerSlidingState : MonoBehaviour,IState
+public class PlayerSlidingState : PlayerState
 {
-    [SerializeField] PlayerController controller;
-    public void OnStateEnd()
+    public PlayerSlidingState(PlayerController controller) : base(controller)
     {
-        controller.crouchCollider.sharedMaterial = controller.normalPhysicMaterial;
-        controller.slideParticle.Stop();
+        this.controller = controller;
     }
 
-    public void OnStateStart()
+    public override void OnStateEnd()
+    {
+        controller.crouchCollider.sharedMaterial = controller.normalPhysicMaterial;
+    }
+
+    public override void OnStateStart()
     {
         controller.ActiveBoxCollider2D = controller.crouchCollider;
         controller.crouchCollider.sharedMaterial = controller.slidingPhysicMaterial;
-        controller.slideParticle.Play();
-        if (!controller.animator.GetCurrentAnimatorStateInfo(0).IsName("Slide")) controller.animator.SetTrigger("slide");
+        controller.animator.SetTrigger("slide");
+        controller.Groundslide();
+        controller.OnSlide?.Invoke();
     }
 
-    public void StateFixedUpdate()
+    public override void StateUpdate()
     {
-        if (Input.GetKey(KeyCode.S) && Mathf.Abs(controller.rb.velocity.x) > controller.groundSlideStoppingSpeed)
+        float crouch = controller.inputSystem.Default.Crouch.ReadValue<float>();
+        if (crouch != 1)
         {
-            return;
-        }
-        else if(Input.GetKey(KeyCode.S))
-        {
-            controller.PlayerState = controller.playerCrouchingState;
-        }
-        else if(!controller.standUpCollisionChecker.inTrigger)
-        {
-            controller.PlayerState = controller.playerStandingState;
+            controller.rb.velocity = Vector2.zero; 
+            if (controller.standUpCollisionChecker.IsColliding)
+            {
+                controller.PlayerState = controller.CrouchState;
+            }
+            else
+            {
+                controller.PlayerState = controller.IdleState;
+            }
         }
     }
 
-    public void StateUpdate()
+    public override void StateFixedUpdate()
     {
-
+        float crouch = controller.inputSystem.Default.Crouch.ReadValue<float>();
+        if (!controller.groundCollisionChecker.IsColliding)
+        {
+            controller.PlayerState = controller.FallingState;
+        }
+        else if (Mathf.Abs(controller.rb.velocity.x) < controller.SlideStoppingSpeed)
+        {
+            if(crouch != 0) controller.PlayerState = controller.CrouchState;
+            else if (!controller.standUpCollisionChecker.IsColliding)
+            {
+                controller.PlayerState = controller.IdleState;
+            }
+            else
+            {
+                controller.PlayerState = controller.CrouchState;
+            }
+        }
     }
-    
 }

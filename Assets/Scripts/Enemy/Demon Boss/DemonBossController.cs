@@ -3,6 +3,8 @@ using DG.Tweening;
 using System.Collections;
 using Unity.VisualScripting;
 using Cinemachine;
+using UnityEngine.Serialization;
+
 public class DemonBossController : MonoBehaviour,IDamageable
 {
     public Vector2 fireBreathDemonOffset;
@@ -46,11 +48,11 @@ public class DemonBossController : MonoBehaviour,IDamageable
             BossBar.Instance?.statBar.OnValueChange(value);
         }
     }
-    IState State { get { return _state; } set { _state?.OnStateEnd();_state = value; _state.OnStateStart(); } }
+    DemonState State { get { return _state; } set { _state?.OnStateEnd();_state = value; _state.OnStateStart(); } }
 
 
-    IState _state;
-    public IState DemonState
+    DemonState _state;
+    public DemonState DemonState
     {
         get
         {
@@ -63,11 +65,12 @@ public class DemonBossController : MonoBehaviour,IDamageable
             _state.OnStateStart();
         }
     }
-    public DemonStateFirstPhase demonStateFirstPhase;
-    public DemonStateSecondPhase demonStateSecondPhase;
+    [FormerlySerializedAs("demonStateFirstPhase")] public DemonFirstPhase DemonFirstPhase;
+    [FormerlySerializedAs("demonStateSecondPhase")] public DemonSecondPhase DemonSecondPhase;
     private void Start()
     {
-        State = demonStateFirstPhase;
+        DemonFirstPhase = new DemonFirstPhase(this);
+        State = DemonFirstPhase;
     }
     private void Update()
     {

@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Playables;
 using UnityEngine.UI;
 using DG.Tweening;
+using Player.Statemachine;
 
 public class GameManager : MonoBehaviour
 {

@@ -1,23 +1,21 @@
+using Skullknight.Player.Statemachine;
+using Skullknight.State;
+
 namespace Player.Statemachine
 {
     public class PlayerIdleState : PlayerState
     {
-        public PlayerIdleState(PlayerController controller) : base(controller)
-        {
-            this.controller = controller;
-        }
+        public PlayerIdleState(PlayerController controller) : base(controller){}
 
-        public override void OnStateEnd()
-        {
-            controller.inputSystem.Default.Jump.performed -= controller.OnJumpPerformed;
-        }
-
-        public override void OnStateStart()
+        public override void EnterState()
         {
             controller.ActiveBoxCollider2D = controller.standingCollider;
             controller.ActiveBoxCollider2D.sharedMaterial = controller.stoppingPhysicMaterial;
-        
-            controller.inputSystem.Default.Jump.performed += controller.OnJumpPerformed;
+        }
+
+        public override void ExitState()
+        {
+            
         }
     
 
@@ -27,12 +25,8 @@ namespace Player.Statemachine
         
             controller.RegenerateStamina();
         
-            float horizontal = controller.inputSystem.Default.Horizontal.ReadValue<float>();
-            float crouch = controller.inputSystem.Default.Crouch.ReadValue<float>();
-            float jump = controller.inputSystem.Default.Jump.ReadValue<float>();
-        
-            if (crouch == 1) controller.PlayerState = controller.CrouchState;
-            else if (horizontal != 0) controller.PlayerState = controller.RunningState;
+            if (controller.playerInput.actions["Crouch"].IsPressed()) controller.ChangeState(EPlayerState.Crouching);
+            else if (controller.playerInput.actions["Horizontal"].IsPressed()) controller.ChangeState(EPlayerState.Running);
         }
         public override void StateFixedUpdate()
         {
@@ -40,6 +34,16 @@ namespace Player.Statemachine
             {
                 //fall
             }
+        }
+
+        public override void SubscribeEvents()
+        {
+            controller.playerInput.actions["Jump"].performed += controller.OnJumpPerformed;
+        }
+
+        public override void UnsubscribeEvents()
+        {
+            controller.playerInput.actions["Jump"].performed -= controller.OnJumpPerformed;
         }
     }
 }

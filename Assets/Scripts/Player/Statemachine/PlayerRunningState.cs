@@ -1,3 +1,4 @@
+using Skullknight.Player.Statemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -5,29 +6,25 @@ namespace Player.Statemachine
 {
     public class PlayerRunningState : PlayerState
     {
-        public PlayerRunningState(PlayerController controller) : base(controller)
+        public PlayerRunningState(PlayerController stateManager) : base(stateManager)
         {
-            this.controller = controller;
+            this.controller = stateManager;
         }
 
-        public override void OnStateStart()
+        public override void EnterState()
         {
             controller.ActiveBoxCollider2D.sharedMaterial = controller.normalPhysicMaterial;
         
-            controller.Run(controller.inputSystem.Default.Horizontal.ReadValue<float>());
-        
-            controller.inputSystem.Default.Horizontal.canceled += OnHorizontalCanceled;
-            controller.inputSystem.Default.Jump.performed += controller.OnJumpPerformed;
+            controller.Run(controller.playerInput.actions["Horizontal"].ReadValue<float>());
         }
-        public override void OnStateEnd()
+        public override void ExitState()
         {
-            controller.inputSystem.Default.Horizontal.canceled -= OnHorizontalCanceled;   
-            controller.inputSystem.Default.Jump.performed -= controller.OnJumpPerformed;
+            
         }
 
         private void OnHorizontalCanceled(InputAction.CallbackContext context)
         {
-            controller.PlayerState = controller.IdleState;
+            controller.ChangeState(EPlayerState.Idle);
         }
 
         public override void StateUpdate()
@@ -35,25 +32,22 @@ namespace Player.Statemachine
             float velocityProgress = Mathf.Abs(controller.rb.velocity.x) / controller.maxRunningVelocity;
         
             controller.RegenerateStamina();
-        
-            float crouch = controller.inputSystem.Default.Crouch.ReadValue<float>();
-            float horizontal = controller.inputSystem.Default.Horizontal.ReadValue<float>();
-            float roll = controller.inputSystem.Default.Roll.ReadValue<float>();
-            if (crouch != 0)
+            
+            if (controller.playerInput.actions["Crouch"].IsPressed())
             {
-                if(Mathf.Abs(controller.rb.velocity.x) > controller.SlidingSpeed) controller.PlayerState = controller.SlidingState;
+                if(Mathf.Abs(controller.rb.velocity.x) > controller.SlidingSpeed) controller.ChangeState(EPlayerState.Sliding);
                 else
                 {
-                    controller.PlayerState = controller.CrouchState;
+                    controller.ChangeState(EPlayerState.Crouching);
                 }
             }
-            else if (roll != 0)
+            else if (controller.playerInput.actions["Roll"].IsPressed())
             {
-                controller.PlayerState = controller.RollState;
+                controller.ChangeState(EPlayerState.Roll);
             }
-            else if (horizontal == 0)
+            else if (!controller.playerInput.actions["Horizontal"].IsPressed())
             {
-                controller.PlayerState = controller.IdleState;
+                controller.ChangeState(EPlayerState.Idle);
             }
             else
             {
@@ -69,18 +63,30 @@ namespace Player.Statemachine
             //if grounded and run key held, run
             //if only grounded, idle
             //if not grounded, fall
-            float horizontal = controller.inputSystem.Default.Horizontal.ReadValue<float>();
+            float horizontal = controller.playerInput.actions["Horizontal"].ReadValue<float>();
             if (controller.groundCollisionChecker.IsColliding) 
             {
-                if (horizontal != 0)
+                if (controller.playerInput.actions["Horizontal"].IsPressed())
                 {
                     controller.Run(horizontal);
                 }
             }
             else
             {
-                controller.PlayerState = controller.FallingState;
+                controller.ChangeState(EPlayerState.Falling);
             }
+        }
+
+        public override void SubscribeEvents()
+        {
+            controller.playerInput.actions["Horizontal"].canceled += OnHorizontalCanceled;
+            controller.playerInput.actions["Jump"].performed += controller.OnJumpPerformed;
+        }
+
+        public override void UnsubscribeEvents()
+        {
+            controller.playerInput.actions["Horizontal"].canceled -= OnHorizontalCanceled;   
+            controller.playerInput.actions["Jump"].performed -= controller.OnJumpPerformed;
         }
     }
 }

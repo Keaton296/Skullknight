@@ -1,35 +1,27 @@
 using System.Collections;
+using Player.Statemachine;
+using Skullknight.Core;
+using Skullknight.State;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using UnityEngine.Serialization;
 
-namespace Player.Statemachine
+namespace Skullknight.Player.Statemachine
 {
-    public class PlayerController : MonoBehaviour,IDamageable
+    public class PlayerController : StateManager<EPlayerState>,IDamageable
     {
         public static PlayerController Instance;
+        
+        //Component References
         public Rigidbody2D rb;
         public Animator animator;
         public SpriteRenderer spriteRenderer;
-        public PlayerInputActions inputSystem;
- 
-        PlayerState _playerState;
-        public PlayerState PlayerState {
-            get { return _playerState; }
-            set
-            {
-                _playerState?.OnStateEnd();
-                _playerState = value;
-                _playerState?.OnStateStart(); 
-                OnStateChange?.Invoke(value);
-            } 
-        }
-
+        [FormerlySerializedAs("inputSystem")] public PlayerInput playerInput;
         public int Health {
             get => throw new System.NotImplementedException();
             set => throw new System.NotImplementedException(); 
         }
-    
         public BoxCollider2D ActiveBoxCollider2D 
         {
             get
@@ -62,17 +54,16 @@ namespace Player.Statemachine
         public float FallingGravityScale => m_fallingGravityScale;
         public float SlidingSpeedCap => m_slidingSpeedCap;
         public float MaxFallingVelocity => m_maxFallingVelocity;
-
         public bool CanJump => (Time.time - lastJumpTime) > jumpCheckDeathSeconds;
     
         BoxCollider2D _activeBoxCollider2D;
-        [HideInInspector] public BoxCollider2D standingCollider;
-        [HideInInspector] public BoxCollider2D crouchCollider;
-        [HideInInspector] public BoxCollider2D wallCheckCollider;
-        [HideInInspector] public BoxCollider2D hangCheckCollider;
-        [HideInInspector] public BoxCollider2D standingCheckCollider;
-        [HideInInspector] public Collider2D hungObjectCollider;
-        [HideInInspector] public BoxCollider2D atk0Collider;
+        public BoxCollider2D standingCollider;
+        public BoxCollider2D crouchCollider;
+        public BoxCollider2D wallCheckCollider;
+        public BoxCollider2D hangCheckCollider;
+        public BoxCollider2D standingCheckCollider;
+        public Collider2D hungObjectCollider;
+        public BoxCollider2D atk0Collider;
 
         //Events
         [HideInInspector] public UnityEvent OnRoll;
@@ -80,7 +71,6 @@ namespace Player.Statemachine
         [HideInInspector] public UnityEvent OnCrouch;
         [HideInInspector] public UnityEvent OnSlide;
         [HideInInspector] public UnityEvent OnJump;
-        [HideInInspector] public UnityEvent<PlayerState> OnStateChange;
     
         //Member values
         public float rollingCooldown = 1f;
@@ -132,49 +122,45 @@ namespace Player.Statemachine
         public Coroutine groundSlideDeathCoroutine;
         public Coroutine rollCoolDownCoroutine;
         public Coroutine wallSlideCheckDeathCoroutine;
-    
-        //States 
-        public PlayerIdleState IdleState;
-        public PlayerRunningState RunningState;
-        public PlayerAttackingState AttackingState;
-        public PlayerFallingState FallingState;
-        public PlayerHangingState HangingState;
-        public PlayerCrouchingState CrouchState;
-        public PlayerWallSlideState WallslideState;
-        public PlayerSlidingState SlidingState;
-        public PlayerRollState RollState;
-        public PlayerJumpState JumpState;
-        public PlayerClimbState ClimbState;
-        private void Awake()
+        
+        protected override void Awake()
         {
             Instance = this;
-            inputSystem = new PlayerInputActions();
-            inputSystem?.Default.Enable();
-        
-            IdleState = new PlayerIdleState(this);
-            RunningState = new PlayerRunningState(this);
-            CrouchState = new PlayerCrouchingState(this);
-            RollState = new PlayerRollState(this);
-            SlidingState = new PlayerSlidingState(this);
-            JumpState = new PlayerJumpState(this);
-            FallingState = new PlayerFallingState(this);
-        
-            PlayerState = IdleState;
-            ActiveBoxCollider2D = standingCollider;
-        }
-        private void Update()
-        {
-            _playerState.StateUpdate();
+            
+            states.Add(EPlayerState.Idle, new PlayerIdleState(this));
+            states.Add(EPlayerState.Running, new PlayerRunningState(this));
+            states.Add(EPlayerState.Crouching, new PlayerCrouchingState(this));
+            states.Add(EPlayerState.Roll, new PlayerRollState(this));
+            states.Add(EPlayerState.Sliding, new PlayerSlidingState(this));
+            states.Add(EPlayerState.Jumping, new PlayerJumpState(this));
+            states.Add(EPlayerState.Falling, new PlayerFallingState(this));
+            states.Add(EPlayerState.Hanging, new PlayerHangingState(this));
+            states.Add(EPlayerState.Climbing, new PlayerClimbingState(this));
+            
+            ChangeState(EPlayerState.Idle);
+            GameManager.Instance.OnStateChange.AddListener(OnGameStateChanged);
         }
 
-        private void FixedUpdate()
+        protected override void Start()
         {
-            _playerState.StateFixedUpdate();
+            
+        }
+
+        protected override void OnEnable()
+        {
+            base.OnEnable();
+            if (currentState == null) ChangeState(EPlayerState.Idle);
+        }
+
+        void OnDisable()
+        {
+            base.OnDisable();
+            animator.SetTrigger("idle");
         }
         public void Roll()
         {
             m_stamina -= 50;
-            rb.velocity = Vector2.right * (Input.GetAxisRaw("Horizontal") * rollingVelocity);
+            rb.velocity = Vector2.right * (playerInput.actions["Horizontal"].ReadValue<float>() * rollingVelocity);
             OnRoll?.Invoke();
         }
         public void Run(float inputAxis)
@@ -183,8 +169,8 @@ namespace Player.Statemachine
             float diffToMaxVel = inputAxis * maxRunningVelocity - rb.velocity.x;
             float fixedAcceleration = Mathf.Clamp(diffToMaxVel, -ACCELERATION, ACCELERATION);
             ActiveBoxCollider2D.sharedMaterial = normalPhysicMaterial;
-            if (inputAxis == 1f) SetFlip(false);
-            else if (inputAxis == -1) SetFlip(true);
+            if (inputAxis > 0) SetFlip(false);
+            else if (inputAxis < 0) SetFlip(true);
             rb.AddForce(Vector2.right * fixedAcceleration,ForceMode2D.Impulse);
         }
         public void Airstrafe(float inputAxis)
@@ -207,7 +193,7 @@ namespace Player.Statemachine
         {
             if (CanJump)
             {
-                PlayerState = JumpState;
+                ChangeState(EPlayerState.Jumping);
             }
         }
 
@@ -216,7 +202,28 @@ namespace Player.Statemachine
             IHangPoint point = GetHangPoint();
             if (point != null)
             {
-                PlayerState = HangingState;
+                hangPoint = point;
+                ChangeState(EPlayerState.Hanging);
+            }
+        }
+
+        public void OnGameStateChanged(GameManager.EGameManagerState state)
+        {
+            Debug.Log("hello from developer");
+            switch (state)
+            {
+                case GameManager.EGameManagerState.Playing:
+                    this.enabled = true;
+                    break;
+                case GameManager.EGameManagerState.Cutscene:
+                    this.enabled = false;
+                    break;
+                case GameManager.EGameManagerState.EscapeMenu:
+                    this.enabled = false;
+                    break;
+                case GameManager.EGameManagerState.Gameover:
+                    this.enabled = false;
+                    break;
             }
         }
 
@@ -233,8 +240,8 @@ namespace Player.Statemachine
             ActiveBoxCollider2D.sharedMaterial = normalPhysicMaterial;
             rb.AddForce(Vector2.right * fixedAcceleration,ForceMode2D.Impulse);
         
-            if (inputAxis == 1f) SetFlip(false);
-            else if (inputAxis == -1) SetFlip(true);
+            if (inputAxis > 0) SetFlip(false);
+            else if (inputAxis < 0) SetFlip(true);
         }
 
         public IHangPoint GetHangPoint()
@@ -244,29 +251,32 @@ namespace Player.Statemachine
                 hangCheckCollider.bounds.size,
                 0f,
                 rb.velocity,
-                .1f);
-            return hitInfo.collider.GetComponent<IHangPoint>();
+                .1f,
+                hangMask);
+            if (hitInfo.collider != null) return hitInfo.collider.GetComponent<IHangPoint>();
+            else return null;
         }
 
         public void Hang()
         {
+            SetFlip(hangPoint.SpriteFlip);
+            rb.velocity = Vector2.zero;
+            rb.totalForce = Vector2.zero;
             rb.isKinematic = true;
             Physics2D.IgnoreCollision(standingCollider, hangPoint.HandCollider, true);
             Physics2D.IgnoreCollision(crouchCollider, hangPoint.HandCollider, true);
-            SetFlip(hangPoint.SpriteFlip);
-
-            animator.SetTrigger("hang");
         
             transform.parent = hangPoint.HandCollider.transform;
-
             transform.localPosition = hangPoint.HoldPoint.localPosition;
-            rb.velocity = Vector2.zero;
         }
 
         public void Unhang()
         {
-            transform.parent = null;
             transform.position = hangPoint.ClimbPoint.position;
+            rb.MovePosition(hangPoint.ClimbPoint.position);
+            rb.velocity = Vector2.zero;
+            transform.parent = null;
+            rb.totalForce = Vector2.zero;
             rb.isKinematic = false;
             Physics2D.IgnoreCollision(standingCollider, hangPoint.HandCollider, false);
             Physics2D.IgnoreCollision(crouchCollider, hangPoint.HandCollider, false);
@@ -286,22 +296,21 @@ namespace Player.Statemachine
 
         public IEnumerator GroundslideDeath()
         {
-        
             yield return new WaitForSeconds(m_groundSlideDeathSeconds);
             groundSlideDeathCoroutine = null;
         }
         public void SetFlip(bool value)
         {
-            //attackHitbox.localScale = new Vector3(value != spriteRenderer.flipX ? -attackHitbox.localScale.x : attackHitbox.localScale.x,attackHitbox.localScale.y,attackHitbox.localScale.z);
-            //landFXPlayerPoint.localPosition = new Vector3(value != spriteRenderer.flipX ? -landFXPlayerPoint.localPosition.x : landFXPlayerPoint.localPosition.x, landFXPlayerPoint.localPosition.y, landFXPlayerPoint.localPosition.z);
-            //landFXRenderer.flipX = value;
             spriteRenderer.flipX = value;
-            //wallSlideParticleTransform.localPosition = new Vector3(value ? .539f : -.539f, wallSlideParticleTransform.localPosition.y);
         }
 
         public void RegenerateStamina()
         {
             Stamina += StaminaSpeed * Time.deltaTime;
+        }
+        public void ResetVelocity()
+        {
+            rb.velocity = Vector2.zero;
         }
     }
 }

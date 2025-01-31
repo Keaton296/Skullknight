@@ -1,34 +1,36 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
-using static UnityEditor.Experimental.GraphView.GraphView;
-[RequireComponent(typeof(Rigidbody2D))]
-public class CollisionChecker : MonoBehaviour
+
+namespace Skullknight.Core
 {
-    [SerializeField] LayerMask checkLayerMask;
-    //[SerializeField] BoxCollider2D boxCollider;
-    //[SerializeField] float extraHeight = .01f;
-    [FormerlySerializedAs("inTrigger")] public bool IsColliding;
-    public Action<Collider2D> onCollisionEnter2D;
-    public Action<Collider2D> onTriggerEnter2D;
-    void OnTriggerEnter2D(Collider2D other)
+    [RequireComponent(typeof(Rigidbody2D))]
+    public class CollisionChecker : MonoBehaviour
     {
-        if(checkLayerMask == (checkLayerMask| (1 << other.gameObject.layer)))
+        [SerializeField] LayerMask checkLayerMask;
+        [FormerlySerializedAs("inTrigger")] public bool IsColliding;
+        public Action<Collider2D> onCollisionEnter2D;
+        public Action<Collider2D> onTriggerEnter2D;
+        public UnityEvent onTriggerEnter;
+        void OnTriggerEnter2D(Collider2D other)
         {
-            onTriggerEnter2D?.Invoke(other);
-            IsColliding = true;
+            if((checkLayerMask & (1 << other.gameObject.layer)) != 0)
+            {
+                onTriggerEnter2D?.Invoke(other);
+                Debug.Log("deneme from " + gameObject.name);
+                onTriggerEnter?.Invoke();
+                IsColliding = true;
+            }
         }
-    }
-    void OnTriggerExit2D(Collider2D other)
-    {
-        if (checkLayerMask == (checkLayerMask | (1 << other.gameObject.layer)))
+        void OnTriggerExit2D(Collider2D other)
         {
-            IsColliding = false;
+            if ((checkLayerMask & (1 << other.gameObject.layer)) != 0)
+            {
+                IsColliding = false;
 
+            }
         }
-    }
 
+    }
 }

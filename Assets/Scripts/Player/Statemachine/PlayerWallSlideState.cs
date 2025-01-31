@@ -1,21 +1,37 @@
 using System.Collections;
+using Skullknight.Player.Statemachine;
 using UnityEngine;
 
 namespace Player.Statemachine
 {
     public class PlayerWallSlideState : PlayerState
     {
-        public PlayerWallSlideState(PlayerController controller) : base(controller)
+        public PlayerWallSlideState(PlayerController stateManager) : base(stateManager)
         {
         
         }
 
-        public override void OnStateEnd()
+        public override void ExitState()
         {
             // controller.wallSlideParticle.Stop();
         }
 
-        public override void OnStateStart()
+        public override void StateFixedUpdate()
+        {
+            
+        }
+
+        public override void SubscribeEvents()
+        {
+            
+        }
+
+        public override void UnsubscribeEvents()
+        {
+            
+        }
+
+        public override void EnterState()
         {
             controller.animator.SetTrigger("wallslide");
             // controller.wallSlideParticle.Play();
@@ -30,7 +46,7 @@ namespace Player.Statemachine
                 controller.rb.velocity = new Vector2(controller.spriteRenderer.flipX ? -controller.maxRunningVelocity : controller.maxRunningVelocity,controller.jumpVelocity);
                 controller.rb.isKinematic = false;
                 controller.wallSlideCheckDeathCoroutine = controller.StartCoroutine(WallSlideCheckDeath());
-                controller.PlayerState = controller.FallingState;
+                controller.ChangeState(EPlayerState.Falling);
             }
         
         }

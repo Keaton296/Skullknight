@@ -1,3 +1,4 @@
+using Skullknight.Player.Statemachine;
 using UnityEngine;
 using Vector2 = UnityEngine.Vector2;
 
@@ -5,17 +6,17 @@ namespace Player.Statemachine
 {
     public class PlayerSlidingState : PlayerState
     {
-        public PlayerSlidingState(PlayerController controller) : base(controller)
+        public PlayerSlidingState(PlayerController stateManager) : base(stateManager)
         {
-            this.controller = controller;
+            this.controller = stateManager;
         }
 
-        public override void OnStateEnd()
+        public override void ExitState()
         {
             controller.crouchCollider.sharedMaterial = controller.normalPhysicMaterial;
         }
 
-        public override void OnStateStart()
+        public override void EnterState()
         {
             controller.ActiveBoxCollider2D = controller.crouchCollider;
             controller.crouchCollider.sharedMaterial = controller.slidingPhysicMaterial;
@@ -26,40 +27,48 @@ namespace Player.Statemachine
 
         public override void StateUpdate()
         {
-            float crouch = controller.inputSystem.Default.Crouch.ReadValue<float>();
-            if (crouch != 1)
+            if (!controller.playerInput.actions["Crouch"].IsPressed())
             {
                 controller.rb.velocity = Vector2.zero; 
                 if (controller.standUpCollisionChecker.IsColliding)
                 {
-                    controller.PlayerState = controller.CrouchState;
+                    controller.ChangeState(EPlayerState.Crouching);
                 }
                 else
                 {
-                    controller.PlayerState = controller.IdleState;
+                    controller.ChangeState(EPlayerState.Idle);
                 }
             }
         }
 
         public override void StateFixedUpdate()
         {
-            float crouch = controller.inputSystem.Default.Crouch.ReadValue<float>();
             if (!controller.groundCollisionChecker.IsColliding)
             {
-                controller.PlayerState = controller.FallingState;
+                controller.ChangeState(EPlayerState.Falling);
             }
             else if (Mathf.Abs(controller.rb.velocity.x) < controller.SlideStoppingSpeed)
             {
-                if(crouch != 0) controller.PlayerState = controller.CrouchState;
+                if(controller.playerInput.actions["Crouch"].IsPressed()) controller.ChangeState(EPlayerState.Crouching);
                 else if (!controller.standUpCollisionChecker.IsColliding)
                 {
-                    controller.PlayerState = controller.IdleState;
+                    controller.ChangeState(EPlayerState.Idle);
                 }
                 else
                 {
-                    controller.PlayerState = controller.CrouchState;
+                    controller.ChangeState(EPlayerState.Crouching);
                 }
             }
+        }
+
+        public override void SubscribeEvents()
+        {
+            
+        }
+
+        public override void UnsubscribeEvents()
+        {
+            
         }
     }
 }

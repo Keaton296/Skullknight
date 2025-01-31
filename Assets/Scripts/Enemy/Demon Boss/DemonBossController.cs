@@ -3,6 +3,7 @@ using DG.Tweening;
 using System.Collections;
 using Unity.VisualScripting;
 using Cinemachine;
+using Skullknight.Core;
 using UnityEngine.Serialization;
 
 public class DemonBossController : MonoBehaviour,IDamageable

@@ -1,21 +1,28 @@
+using Skullknight.Player.Statemachine;
+using Skullknight.State;
 using UnityEngine;
 
 namespace Player.Statemachine
 {
-    public abstract class PlayerState 
+    public abstract class PlayerState : BaseState<EPlayerState>
     {
-        [SerializeField] protected PlayerController controller;
-        public PlayerState(PlayerController controller)
+        protected PlayerController controller;
+        public PlayerState(PlayerController playerController)
         {
-            controller = this.controller;
+            controller = playerController;
         }
-
-        public virtual void StateFixedUpdate()
-        {
-        
-        }
-        public abstract void OnStateStart();
-        public abstract void OnStateEnd();
-        public abstract void StateUpdate();
+    }
+    public enum EPlayerState
+    {
+        Idle,
+        Running,
+        Sliding,
+        Wallsliding,
+        Roll,
+        Jumping,
+        Falling,
+        Hanging,
+        Crouching,
+        Climbing
     }
 }

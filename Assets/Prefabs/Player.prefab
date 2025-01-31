@@ -5045,6 +5045,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 8
   IsColliding: 0
+  onTriggerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!50 &1080927153992734385
 Rigidbody2D:
   serializedVersion: 4
@@ -10481,6 +10484,7 @@ GameObject:
   - component: {fileID: 8417344755278168180}
   - component: {fileID: 545360709433119174}
   - component: {fileID: 3313386726891655734}
+  - component: {fileID: 5081497072451405571}
   m_Layer: 7
   m_Name: Player
   m_TagString: Untagged
@@ -10638,17 +10642,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87b2c0938dbd33849b13589ce14828d0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  OnStateChange:
+    m_PersistentCalls:
+      m_Calls: []
   rb: {fileID: 545360709433119174}
   animator: {fileID: 3701004679682516583}
   spriteRenderer: {fileID: 7258165733093789974}
+  playerInput: {fileID: 0}
   standingCollider: {fileID: 3117954954856071400}
   crouchCollider: {fileID: 8417344755278168180}
   wallCheckCollider: {fileID: 1434827453182627299}
-  holdCheckCollider: {fileID: 8145708185594430071}
+  hangCheckCollider: {fileID: 8145708185594430071}
   standingCheckCollider: {fileID: 7082469322529413577}
   hungObjectCollider: {fileID: 0}
   atk0Collider: {fileID: 2601118769710187303}
-  rollingCooldown: 1.5
   OnRoll:
     m_PersistentCalls:
       m_Calls: []
@@ -10664,9 +10671,7 @@ MonoBehaviour:
   OnJump:
     m_PersistentCalls:
       m_Calls: []
-  OnStateChange:
-    m_PersistentCalls:
-      m_Calls: []
+  rollingCooldown: 1.5
   m_fallingGravityScale: 3
   m_jumpCutPercentage: 0.25
   m_maxFallingVelocity: 6
@@ -10678,11 +10683,6 @@ MonoBehaviour:
   maxRunningAnimSpeed: 2
   jumpVelocity: 10
   attackHitbox: {fileID: 5486887123230049219}
-  spriteTransform: {fileID: 2359658852703980254}
-  hangObjectTransform: {fileID: 0}
-  hangObjectHangPointTransform: {fileID: 0}
-  hangObjectClimbPointTransform: {fileID: 0}
-  wallSlideParticleTransform: {fileID: 2375082628330362395}
   slidingPhysicMaterial: {fileID: 6200000, guid: 4dde220baf5fd414d91611d206baedfe, type: 2}
   normalPhysicMaterial: {fileID: 6200000, guid: 778e95130ddb05a49996ec766258abca, type: 2}
   stoppingPhysicMaterial: {fileID: 6200000, guid: 0f521674f433b5145a78d1fade895021, type: 2}
@@ -10701,6 +10701,27 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   lastJumpTime: 0
+--- !u!95 &5081497072451405571
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5443477044474559933}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 0}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1 &6828998920010279890
 GameObject:
   m_ObjectHideFlags: 0
@@ -10900,6 +10921,9 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 520
   IsColliding: 0
+  onTriggerEnter:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &8086748995807144855
 GameObject:
   m_ObjectHideFlags: 0
@@ -10978,7 +11002,7 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
-  m_Volume: 0.25
+  m_Volume: 0.05
   m_Pitch: 1
   Loop: 0
   Mute: 0
@@ -11076,7 +11100,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioSource: {fileID: 1569820640363916680}
   audioClips:
-  - {fileID: 8300000, guid: 0addb5445a717d744968bcc6a79b4fdc, type: 3}
-  - {fileID: 8300000, guid: c4ae6244660e5e0459eb23348cffbea8, type: 3}
-  - {fileID: 8300000, guid: c242bd5029087d94dbfc337f684a999b, type: 3}
-  - {fileID: 8300000, guid: 8313b13cbb38daa47a415b4006d639c6, type: 3}
+  - {fileID: 8300000, guid: 94633ef874732f047a234748acd7d905, type: 3}
+  - {fileID: 8300000, guid: c5b6c4c21d842eb4caaefb260dbed23e, type: 3}
+  - {fileID: 8300000, guid: b2bd8638e5c52754c98638c5e4d32da8, type: 3}
+  - {fileID: 8300000, guid: 909d3e2dfc892124db0c07fd37cea43b, type: 3}
+  - {fileID: 8300000, guid: f028cf0a4e529714aa069498bc30fb1c, type: 3}
+  - {fileID: 8300000, guid: 2cb1db0c716ada349b5cf5ec0a20754e, type: 3}
+  - {fileID: 8300000, guid: f19b441ccdc17ed4b97469ceab125bf8, type: 3}
+  - {fileID: 8300000, guid: e0d2b098951fdb3468753309ec9a4f4c, type: 3}
+  - {fileID: 8300000, guid: 4c791d0031c082b4eb9948599ff33277, type: 3}
+  - {fileID: 8300000, guid: a5c90b27fe023a7428caa5c9769ed93a, type: 3}

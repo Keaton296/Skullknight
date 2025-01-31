@@ -1,21 +1,22 @@
 using System.Collections;
+using Skullknight.Player.Statemachine;
 using UnityEngine;
 
 namespace Player.Statemachine
 {
     public class PlayerRollState : PlayerState
     {
-        public PlayerRollState(PlayerController controller) : base(controller)
+        public PlayerRollState(PlayerController stateManager) : base(stateManager)
         {
-            this.controller = controller;
+            this.controller = stateManager;
         }
     
-        public override void OnStateEnd()
+        public override void ExitState()
         {
          
         }
 
-        public override void OnStateStart()
+        public override void EnterState()
         {
             controller.Roll();
             controller.animator.SetTrigger("roll");
@@ -26,14 +27,14 @@ namespace Player.Statemachine
         {
             if (IsRollingAnimationDone())
             {
-                float crouch = controller.inputSystem.Default.Crouch.ReadValue<float>();
+                float crouch = controller.playerInput.actions["Crouch"].ReadValue<float>();
                 if (crouch != 0)
                 {
-                    controller.PlayerState = controller.SlidingState;
+                    controller.ChangeState(EPlayerState.Sliding);
                 }
                 else
                 {
-                    controller.PlayerState = controller.IdleState;
+                    controller.ChangeState(EPlayerState.Idle);
                 }
             }
         }
@@ -41,6 +42,16 @@ namespace Player.Statemachine
         public override void StateFixedUpdate()
         {
         
+        }
+
+        public override void SubscribeEvents()
+        {
+            
+        }
+
+        public override void UnsubscribeEvents()
+        {
+            
         }
 
         private bool IsRollingAnimationDone()

@@ -1,4 +1,5 @@
 using System;
+using Skullknight.Player.Statemachine;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -7,29 +8,24 @@ namespace Player.Statemachine
     public class PlayerCrouchingState : PlayerState
     {
 
-        public PlayerCrouchingState(PlayerController controller) : base(controller)
+        public PlayerCrouchingState(PlayerController stateManager) : base(stateManager){}
+
+        public override void ExitState()
         {
-            this.controller = controller;
+            
         }
 
-        public override void OnStateEnd()
-        {
-            controller.inputSystem.Default.Crouch.canceled -= OnCrouchCanceled;
-        }
-
-        public override void OnStateStart()
+        public override void EnterState()
         {
             controller.ActiveBoxCollider2D = controller.crouchCollider;
             controller.animator.SetTrigger("crouch");
-        
-            controller.inputSystem.Default.Crouch.canceled += OnCrouchCanceled;
         }
 
         private void OnCrouchCanceled(InputAction.CallbackContext context)
         {
             if (!controller.standUpCollisionChecker.IsColliding)
             {
-                controller.PlayerState = controller.IdleState;   
+                controller.ChangeState(EPlayerState.Idle);  
             }
         }
 
@@ -37,8 +33,9 @@ namespace Player.Statemachine
         public override void StateUpdate()
         {
             controller.RegenerateStamina();
-        
-            float horizontal = controller.inputSystem.Default.Horizontal.ReadValue<float>();
+
+            
+            float horizontal = controller.playerInput.actions["Horizontal"].ReadValue<float>();
         
             if (horizontal != 0)
             {
@@ -54,18 +51,28 @@ namespace Player.Statemachine
 
         public override void StateFixedUpdate()
         {
-            float horizontal = controller.inputSystem.Default.Horizontal.ReadValue<float>();
-            float crouch = controller.inputSystem.Default.Crouch.ReadValue<float>();
+            float horizontal = controller.playerInput.actions["Horizontal"].ReadValue<float>();
+            float crouch = controller.playerInput.actions["Crouch"].ReadValue<float>();
             if (controller.groundCollisionChecker.IsColliding)
             {
                 if(horizontal != 0) controller.Crouchwalk(horizontal);
-                if (crouch == 0 && !controller.standUpCollisionChecker.IsColliding) controller.PlayerState = controller.IdleState;
+                if (crouch == 0 && !controller.standUpCollisionChecker.IsColliding) controller.ChangeState(EPlayerState.Idle);
             }
             else
             {
                 //to falling
                 throw new NotImplementedException();
             }
+        }
+
+        public override void SubscribeEvents()
+        {
+            controller.playerInput.actions["Crouch"].canceled += OnCrouchCanceled;
+        }
+
+        public override void UnsubscribeEvents()
+        {
+            controller.playerInput.actions["Crouch"].canceled -= OnCrouchCanceled;
         }
     }
 }

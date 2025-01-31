@@ -1,46 +1,47 @@
 using System.Collections;
+using Skullknight.Player.Statemachine;
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 namespace Player.Statemachine
 {
     public class PlayerHangingState : PlayerState
     {
-        public PlayerHangingState(PlayerController controller) : base(controller)
-        {
-            this.controller = controller;
-        }
-        public override void OnStateStart()
-        {
-        
-        }
-        public override void OnStateEnd()
-        {
-        
-        }
-        public IEnumerator Climb()
-        {
-            /*controller.animator.SetTrigger("climb");
+        public PlayerHangingState(PlayerController stateManager) : base(stateManager){}
 
-        yield return new WaitUntil(() => climbAnimEnded);
-
-        climbAnimEnded = false;
-        transform.localPosition = hangObjectClimbPointTransform.localPosition;
-        spriteTransform.localPosition = playerSpriteOffset;
-        transform.parent = null;
-        rb.velocity = Vector2.zero;
-        rb.isKinematic = false;
-        currentActionCoroutine = null;
-        animator.SetTrigger("idle");
-        Physics2D.IgnoreCollision(standingCollider, hangingObjectCollider, false);
-        Physics2D.IgnoreCollision(crouchCollider, hangingObjectCollider, false);
-        controller.PlayerState = controller.StandingState;*/
-            yield return null;
+        public override void StateFixedUpdate()
+        {
+            
         }
+
+        public override void SubscribeEvents()
+        {
+            controller.playerInput.actions["Hold"].performed += OnHoldPerformed;
+        }
+
+        public override void UnsubscribeEvents()
+        {
+            controller.playerInput.actions["Hold"].performed -= OnHoldPerformed;
+        }
+
+        public override void EnterState()
+        {
+            controller.animator.SetTrigger("hang");
+            controller.Hang();
+        }
+        public override void ExitState()
+        {
+            
+        }
+
         public override void StateUpdate()
         {
-            if (Input.GetKeyDown(KeyCode.E) && controller.currentActionCoroutine == null) {
-                controller.currentActionCoroutine = controller.StartCoroutine(Climb());
-            }
+            
+        }
+
+        private void OnHoldPerformed(InputAction.CallbackContext context)
+        {
+            controller.ChangeState(EPlayerState.Climbing);
         }
     }
 }

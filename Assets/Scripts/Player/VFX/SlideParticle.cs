@@ -1,4 +1,6 @@
 using Player.Statemachine;
+using Skullknight.Player.Statemachine;
+using Skullknight.State;
 using UnityEngine;
 
 namespace Player.VFX
@@ -13,9 +15,9 @@ namespace Player.VFX
             if(particleSystem == null) particleSystem = GetComponent<ParticleSystem>();
             PlayerController.Instance.OnStateChange.AddListener(OnSlideHandler);
         }
-        void OnSlideHandler(PlayerState state)
+        void OnSlideHandler(EPlayerState state)
         {
-            if (state is PlayerSlidingState)
+            if (state == EPlayerState.Sliding)
             {
                 particleSystem.Play();
             }

@@ -1,3 +1,4 @@
+using Skullknight.Player.Statemachine;
 using UnityEngine;
 
 namespace Player.Statemachine
@@ -5,16 +6,13 @@ namespace Player.Statemachine
     public class PlayerFallingState : PlayerState
     {
 
-        public PlayerFallingState(PlayerController controller) : base(controller)
-        {
-            this.controller = controller;
-        }
-        public override void OnStateStart()
+        public PlayerFallingState(PlayerController _controller) : base(_controller){}
+        public override void EnterState()
         {
             controller.rb.gravityScale = controller.FallingGravityScale;
             controller.animator.SetTrigger("fallbetween");
         } 
-        public override void OnStateEnd()
+        public override void ExitState()
         {
             controller.rb.gravityScale = 1f;
         }
@@ -26,20 +24,29 @@ namespace Player.Statemachine
 
         public override void StateFixedUpdate()
         {
-            float horizontal = controller.inputSystem.Default.Horizontal.ReadValue<float>();
+            float horizontal = controller.playerInput.actions["Horizontal"].ReadValue<float>();
             if (controller.rb.velocity.y < -controller.MaxFallingVelocity)
             {
                 controller.rb.velocity = new Vector3(controller.rb.velocity.x, -controller.MaxFallingVelocity, 0f);
             }
             if (controller.groundCollisionChecker.IsColliding && controller.CanJump)
             {
-                controller.PlayerState = controller.IdleState;
+                controller.ChangeState(EPlayerState.Idle);
             }
             else if (horizontal != 0)
             {
                 controller.Airstrafe(horizontal);
             }
         }
-    
+
+        public override void SubscribeEvents()
+        {
+            controller.playerInput.actions["Hold"].performed += controller.OnHoldPerformed;
+        }
+
+        public override void UnsubscribeEvents()
+        {
+            controller.playerInput.actions["Hold"].performed -= controller.OnHoldPerformed;
+        }
     }
 }

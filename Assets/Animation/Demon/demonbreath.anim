@@ -110,23 +110,16 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 1.6666666
-    functionName: SetBreathAttackCheckTrue
+    functionName: MoveToPlayerAttackPoint
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 1.8333334
-    functionName: SetBreathAttackCheckTrue
+    functionName: ShootBreath
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
-    intParameter: 1
-    messageOptions: 0
-  - time: 2.8333333
-    functionName: SetBreathAttackCheckTrue
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 2
+    intParameter: 0
     messageOptions: 0

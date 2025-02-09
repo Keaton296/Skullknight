@@ -1,5 +1,6 @@
 using Skullknight.Player.Statemachine;
 using Skullknight.State;
+using UnityEngine.InputSystem;
 
 namespace Player.Statemachine
 {
@@ -39,11 +40,18 @@ namespace Player.Statemachine
         public override void SubscribeEvents()
         {
             controller.playerInput.actions["Jump"].performed += controller.OnJumpPerformed;
+            controller.playerInput.actions["Attack"].performed += OnAttackPerformed;
         }
-
+        
         public override void UnsubscribeEvents()
         {
             controller.playerInput.actions["Jump"].performed -= controller.OnJumpPerformed;
+            controller.playerInput.actions["Attack"].performed -= OnAttackPerformed;
+        }
+
+        private void OnAttackPerformed(InputAction.CallbackContext obj)
+        {
+            controller.ChangeState(EPlayerState.AttackOne);
         }
     }
 }

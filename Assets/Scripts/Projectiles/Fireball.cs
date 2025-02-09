@@ -9,7 +9,7 @@ public class Fireball : MonoBehaviour
     [SerializeField] Rigidbody2D rb;
     public LayerMask hitMask;
     
-    public void SetFireball(Transform target)
+    public void SetFireballTarget(Transform target)
     {
         Vector2 direction = target.position - transform.position;
         direction.Normalize();

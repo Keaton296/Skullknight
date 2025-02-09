@@ -22,6 +22,9 @@ namespace Skullknight.Player.Statemachine
             get => throw new System.NotImplementedException();
             set => throw new System.NotImplementedException(); 
         }
+
+        public UnityEvent OnHealthChanged { get; set; }
+
         public BoxCollider2D ActiveBoxCollider2D 
         {
             get
@@ -136,6 +139,8 @@ namespace Skullknight.Player.Statemachine
             states.Add(EPlayerState.Falling, new PlayerFallingState(this));
             states.Add(EPlayerState.Hanging, new PlayerHangingState(this));
             states.Add(EPlayerState.Climbing, new PlayerClimbingState(this));
+            states.Add(EPlayerState.AttackOne, new PlayerAttackingState(this,"atk0",.33f,0.33f,EPlayerState.AttackTwo));
+            states.Add(EPlayerState.AttackTwo, new PlayerAttackingState(this,"atk1",.33f,0.33f,null));
             
             ChangeState(EPlayerState.Idle);
             GameManager.Instance.OnStateChange.AddListener(OnGameStateChanged);
@@ -196,7 +201,6 @@ namespace Skullknight.Player.Statemachine
                 ChangeState(EPlayerState.Jumping);
             }
         }
-
         public void OnHoldPerformed(InputAction.CallbackContext context)
         {
             IHangPoint point = GetHangPoint();
@@ -243,7 +247,6 @@ namespace Skullknight.Player.Statemachine
             if (inputAxis > 0) SetFlip(false);
             else if (inputAxis < 0) SetFlip(true);
         }
-
         public IHangPoint GetHangPoint()
         {
             RaycastHit2D hitInfo;

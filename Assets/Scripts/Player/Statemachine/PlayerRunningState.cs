@@ -14,7 +14,6 @@ namespace Player.Statemachine
         public override void EnterState()
         {
             controller.ActiveBoxCollider2D.sharedMaterial = controller.normalPhysicMaterial;
-        
             controller.Run(controller.playerInput.actions["Horizontal"].ReadValue<float>());
         }
         public override void ExitState()
@@ -59,12 +58,9 @@ namespace Player.Statemachine
 
         public override void StateFixedUpdate()
         {
-            //if grounded and run, crouch key held and has enough velocity, slide
-            //if grounded and run key held, run
-            //if only grounded, idle
-            //if not grounded, fall
+            
             float horizontal = controller.playerInput.actions["Horizontal"].ReadValue<float>();
-            if (controller.groundCollisionChecker.IsColliding) 
+            if (controller.groundCollisionChecker.IsColliding)
             {
                 if (controller.playerInput.actions["Horizontal"].IsPressed())
                 {
@@ -76,17 +72,25 @@ namespace Player.Statemachine
                 controller.ChangeState(EPlayerState.Falling);
             }
         }
+        
 
         public override void SubscribeEvents()
         {
             controller.playerInput.actions["Horizontal"].canceled += OnHorizontalCanceled;
             controller.playerInput.actions["Jump"].performed += controller.OnJumpPerformed;
+            controller.playerInput.actions["Attack"].performed += OnAttackPerformed;
+        }
+
+        private void OnAttackPerformed(InputAction.CallbackContext obj)
+        {
+            controller.ChangeState(EPlayerState.AttackOne);
         }
 
         public override void UnsubscribeEvents()
         {
             controller.playerInput.actions["Horizontal"].canceled -= OnHorizontalCanceled;   
             controller.playerInput.actions["Jump"].performed -= controller.OnJumpPerformed;
+            controller.playerInput.actions["Attack"].performed -= OnAttackPerformed;
         }
     }
 }

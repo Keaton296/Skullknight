@@ -1,34 +1,45 @@
 using UnityEngine;
 using DG.Tweening;
 using System.Collections;
-using Unity.VisualScripting;
 using Cinemachine;
 using Skullknight.Core;
+using Skullknight.Enemy.Demon_Boss;
+using Skullknight.Player.Statemachine;
+using Skullknight.State;
+using UnityEngine.Events;
 using UnityEngine.Serialization;
 
-public class DemonBossController : MonoBehaviour,IDamageable
+public class DemonBossController : StateManager<EDemonBossState>,IDamageable
 {
-    public Vector2 fireBreathDemonOffset;
+    public enum DemonBossPhase
+    {
+        FirstPhase,
+        SecondPhase
+    }
+
+    private DemonBossPhase _phase;
+    public DemonBossPhase Phase => _phase;
+    
     public SpriteRenderer spriteRenderer;
     public Animator animator;
-    [SerializeField] int health = 300;
-    Tween takingDamageCoroutine;
-    public float moveLerpSpeed = .2f;
 
-    public bool canMove = false;
+    [SerializeField] private Animator fireAnimator;
+    [SerializeField] private GameObject fireballPrefab;
+    
+    
+    public Tween takingDamageTween;
+    public Tween movementTween;
+    
     public bool canTurn = true;
-    public Coroutine currentMove;
+    public bool canTakeDamage = false;
 
-    [Header("Transforms")]
-    public Transform moveTarget;
-    public Transform flyingPlaceTransform;
-    public Transform playerTransform;
-    public Transform breathAttackTransform;
+    public Transform IdlingPoint;
+    public Transform FireBreathTransform;
+    public Transform mouthPoint;
 
-    [Header("Animators")]
-    public Animator floorFireAnimator;
-    [Header("Cinemachine")]
-    public CinemachineVirtualCamera vcam;
+    [SerializeField] private float movementDuration = 1f;
+    
+    [SerializeField] int health = 300;
     public int Health {
         get {
             return health;
@@ -39,56 +50,120 @@ public class DemonBossController : MonoBehaviour,IDamageable
             {
                 health = value;
                 spriteRenderer.material.SetFloat("_HitFXPercent", 1f);
-                if( takingDamageCoroutine != null)
+                if( takingDamageTween != null)
                 {
-                    takingDamageCoroutine.Kill();
-                    takingDamageCoroutine = null;
+                    takingDamageTween.Kill();
+                    takingDamageTween = null;
                 }
-                takingDamageCoroutine = DOTween.To(() => spriteRenderer.material.GetFloat("_HitFXPercent"), x => spriteRenderer.material.SetFloat("_HitFXPercent",x),0f,.3f);
+                takingDamageTween = DOTween.To(() => spriteRenderer.material.GetFloat("_HitFXPercent"), x => spriteRenderer.material.SetFloat("_HitFXPercent",x),0f,.3f);
             }
             BossBar.Instance?.statBar.OnValueChange(value);
         }
     }
-    DemonState State { get { return _state; } set { _state?.OnStateEnd();_state = value; _state.OnStateStart(); } }
 
+    public UnityEvent OnHealthChanged { get; set; }
 
-    DemonState _state;
-    public DemonState DemonState
+    protected override void Awake()
     {
-        get
+        states.Add(EDemonBossState.Idle,new DemonIdleState(this));
+        states.Add(EDemonBossState.BreathAttack,new DemonBreathAttackState(this));
+        states.Add(EDemonBossState.FireballAttack,new DemonBossFireballAttackState(this));
+        GameManager.Instance?.OnStateChange.AddListener(OnGameStateChanged);
+    }
+
+    protected override void Start()
+    {
+        ChangeState(EDemonBossState.Idle);
+    }
+
+    private void OnGameStateChanged(GameManager.EGameManagerState newState)
+    {
+        if (newState == GameManager.EGameManagerState.Playing && GameManager.Instance.OnBossFight)
         {
-            return _state;
+            this.enabled = true;
         }
-        set
+        else
         {
-            if (_state != null) _state.OnStateEnd();
-            _state = value;
-            _state.OnStateStart();
+            this.enabled = false;
         }
-    }
-    [FormerlySerializedAs("demonStateFirstPhase")] public DemonFirstPhase DemonFirstPhase;
-    [FormerlySerializedAs("demonStateSecondPhase")] public DemonSecondPhase DemonSecondPhase;
-    private void Start()
-    {
-        DemonFirstPhase = new DemonFirstPhase(this);
-        State = DemonFirstPhase;
-    }
-    private void Update()
-    {
-        State.StateUpdate();
-    }
-    private void FixedUpdate()
-    {
-        State.StateFixedUpdate();
-    }
-    public IEnumerator GoToPlace(DemonBossController controller, Transform place)
-    {
-        controller.moveTarget = place;
-        canMove = true;
-        yield return new WaitForSeconds(1);
-        canMove = false;
-        controller.moveTarget = null;
-        currentMove = null;
     }
 
+    protected override void OnEnable()
+    {
+        base.OnEnable();
+    }
+
+    protected override void OnDisable()
+    {
+        base.OnDisable();
+    }
+    public void MoveToTransform(Vector3 ToPoint, float duration)
+    {
+        if(movementTween != null) movementTween.Kill();
+        movementTween = transform.DOMove(ToPoint, duration, false);
+    }
+
+    public void MoveToIdlePosition()
+    {
+        MoveToTransform(IdlingPoint.position, 1f);
+    }
+
+    public void MoveToPlayerAttackPoint()
+    {
+        MoveToTransform(PlayerController.Instance.transform.position - FireBreathTransform.localPosition, 0.166f);
+    }
+
+    public void ShootBreath()
+    {
+        fireAnimator.Play("firebreath");
+    }
+    public void ShootFireball(Transform target)
+    {
+         Instantiate(fireballPrefab,mouthPoint.position , FireBreathTransform.rotation).GetComponent<Fireball>().SetFireballTarget(target);
+    }
+
+    public void ShootFireballToPlayer()
+    {
+        ShootFireball(PlayerController.Instance.transform);
+    }
+
+    public void LookPlayer()
+    {
+        if (PlayerController.Instance?.transform.position.x - transform.position.x > 0)
+        {
+            spriteRenderer.flipX = true;
+        }
+        else
+        {
+            spriteRenderer.flipX = false;
+        }
+    }
+
+}
+
+public enum EDemonBossState
+{
+    Idle,
+    BreathAttack,
+    FireballAttack,
+    Transforming,
+    IdleTwo
+}
+
+public abstract class DemonBossState : BaseState<EDemonBossState>
+{
+    protected DemonBossController controller;
+
+    public DemonBossState(DemonBossController _controller)
+    {
+        controller = _controller;
+    }
+    public void SetFlip(bool value)
+    {
+        //attackHitbox.localScale = new Vector3(value != spriteRenderer.flipX ? -attackHitbox.localScale.x : attackHitbox.localScale.x,attackHitbox.localScale.y,attackHitbox.localScale.z);
+        //landFXPlayerPoint.localPosition = new Vector3(value != spriteRenderer.flipX ? -landFXPlayerPoint.localPosition.x : landFXPlayerPoint.localPosition.x, landFXPlayerPoint.localPosition.y, landFXPlayerPoint.localPosition.z);
+        //landFXRenderer.flipX = value;
+        controller.spriteRenderer.flipX = value;
+        //wallSlideParticleTransform.localPosition = new Vector3(value ? .539f : -.539f, wallSlideParticleTransform.localPosition.y);
+    }
 }

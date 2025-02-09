@@ -23,6 +23,8 @@ namespace Player.Statemachine
         Falling,
         Hanging,
         Crouching,
-        Climbing
+        Climbing,
+        AttackOne,
+        AttackTwo
     }
 }

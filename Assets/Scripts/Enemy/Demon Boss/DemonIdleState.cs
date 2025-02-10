@@ -15,7 +15,7 @@ public class DemonIdleState : DemonBossState
     {
         controller.animator.Play("Idle");
         controller.canTakeDamage = true;
-        controller.StartCoroutine(PrepareNextAction());
+        coroutines.Add(controller.StartCoroutine(PrepareNextAction()));
     }
 
     private IEnumerator PrepareNextAction()
@@ -35,6 +35,15 @@ public class DemonIdleState : DemonBossState
                 }
                 break;
             case DemonBossController.DemonBossPhase.SecondPhase:
+                float rolltwo = Random.Range(0f, 1f);
+                if (rolltwo > 0.5f)
+                {
+                    //laser attack
+                }
+                else
+                {
+                    //breath attack
+                }
                 break;
             default:
                 break;

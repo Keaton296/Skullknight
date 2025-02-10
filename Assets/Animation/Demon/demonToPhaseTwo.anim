@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: demonfireballattack
+  m_Name: demonToPhaseTwo
   serializedVersion: 7
   m_Legacy: 0
   m_Compressed: 0
@@ -37,24 +37,16 @@ AnimationClip:
     - time: 1.8333334
       value: {fileID: 280527291, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
     - time: 2
-      value: {fileID: -684540407, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
+      value: {fileID: -1456794867, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
     - time: 2.1666667
-      value: {fileID: 1701310065, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
+      value: {fileID: 280527291, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
     - time: 2.3333333
-      value: {fileID: -684540407, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
+      value: {fileID: -1456794867, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
     - time: 2.5
       value: {fileID: 280527291, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
     - time: 2.6666667
-      value: {fileID: -684540407, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
-    - time: 2.8333333
-      value: {fileID: 1701310065, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
-    - time: 3
-      value: {fileID: -684540407, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
-    - time: 3.1666667
-      value: {fileID: 280527291, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
-    - time: 3.3333333
       value: {fileID: -1456794867, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
-    - time: 3.6666667
+    - time: 2.8333333
       value: {fileID: -1456794867, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
     attribute: m_Sprite
     path: 
@@ -86,13 +78,9 @@ AnimationClip:
     - {fileID: 1701310065, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
     - {fileID: -684540407, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
     - {fileID: 280527291, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
-    - {fileID: -684540407, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
-    - {fileID: 1701310065, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
-    - {fileID: -684540407, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
+    - {fileID: -1456794867, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
     - {fileID: 280527291, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
-    - {fileID: -684540407, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
-    - {fileID: 1701310065, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
-    - {fileID: -684540407, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
+    - {fileID: -1456794867, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
     - {fileID: 280527291, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
     - {fileID: -1456794867, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
     - {fileID: -1456794867, guid: a75e3a71d655cfb418b1a595c13ff696, type: 3}
@@ -101,7 +89,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 3.6833334
+    m_StopTime: 2.85
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0
@@ -121,24 +109,10 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_Events:
-  - time: 1.8333334
-    functionName: ShootFireballToPlayer
+  - time: 0.45
+    functionName: ToggleHeadGlow
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
-    messageOptions: 0
-  - time: 2.5
-    functionName: ShootFireballToPlayer
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 1
-    messageOptions: 0
-  - time: 3.1666667
-    functionName: ShootFireballToPlayer
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 2
     messageOptions: 0

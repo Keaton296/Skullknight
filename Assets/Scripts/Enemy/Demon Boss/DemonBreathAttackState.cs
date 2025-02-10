@@ -10,7 +10,7 @@ namespace Skullknight.Enemy.Demon_Boss
 
         public override void EnterState()
         {
-            controller.StartCoroutine(AttackRoutine());
+            coroutines.Add(controller.StartCoroutine(AttackRoutine()));
         }
 
         public override void ExitState()

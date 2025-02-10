@@ -15,12 +15,12 @@ namespace Skullknight
 
         void OnEnable()
         {
-            GameManager.Instance.OnBossFightToggle.AddListener(OnBossfightToggle);
+            GameManager.Instance.OnBossChange.AddListener(OnBossfightToggle);
         }
 
         void OnDisable()
         {
-            GameManager.Instance.OnBossFightToggle.RemoveListener(OnBossfightToggle);
+            GameManager.Instance.OnBossChange.RemoveListener(OnBossfightToggle);
         }
 
         void Start()
@@ -36,9 +36,9 @@ namespace Skullknight
             selectedCameraIndex = cameraIndex;
             cameras[selectedCameraIndex].Priority = SELECTION_PRIORITY;
         }
-        private void OnBossfightToggle(bool isBossFight)
+        private void OnBossfightToggle(GameObject boss)
         {
-            if (isBossFight)
+            if (boss != null)
             {
                 SelectCamera(1);
             }

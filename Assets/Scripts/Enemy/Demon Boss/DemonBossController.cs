@@ -1,7 +1,6 @@
 using UnityEngine;
 using DG.Tweening;
-using System.Collections;
-using Cinemachine;
+using System.Collections.Generic;
 using Skullknight.Core;
 using Skullknight.Enemy.Demon_Boss;
 using Skullknight.Player.Statemachine;
@@ -32,6 +31,7 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
     
     public bool canTurn = true;
     public bool canTakeDamage = false;
+    public bool headGlow = false;
 
     public Transform IdlingPoint;
     public Transform FireBreathTransform;
@@ -40,15 +40,28 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
     [SerializeField] private float movementDuration = 1f;
     
     [SerializeField] int health = 300;
+    [SerializeField] private int maxHealth = 300;
     public int Health {
         get {
             return health;
         }
         set {
-            if (value > health) { health = value; }
+            if (value > health) { health = Mathf.Clamp(health, 0, maxHealth); }
             else if (value < health)
             {
+                if (value <= 0)
+                {
+                    if (Phase == DemonBossPhase.FirstPhase)
+                    {
+                        health = maxHealth;
+                        _phase = DemonBossPhase.SecondPhase;
+                        GameManager.Instance.ToCutscene(2);
+                        return;
+                    }
+                }
                 health = value;
+                OnHealthChanged?.Invoke(value);
+                
                 spriteRenderer.material.SetFloat("_HitFXPercent", 1f);
                 if( takingDamageTween != null)
                 {
@@ -57,30 +70,33 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
                 }
                 takingDamageTween = DOTween.To(() => spriteRenderer.material.GetFloat("_HitFXPercent"), x => spriteRenderer.material.SetFloat("_HitFXPercent",x),0f,.3f);
             }
-            BossBar.Instance?.statBar.OnValueChange(value);
         }
     }
 
-    public UnityEvent OnHealthChanged { get; set; }
-
+    public int MaxHealth => maxHealth;
+    public UnityEvent<int> OnHealthChanged => onHealthChanged;
+    private UnityEvent<int> onHealthChanged;
     protected override void Awake()
     {
         states.Add(EDemonBossState.Idle,new DemonIdleState(this));
         states.Add(EDemonBossState.BreathAttack,new DemonBreathAttackState(this));
         states.Add(EDemonBossState.FireballAttack,new DemonBossFireballAttackState(this));
         GameManager.Instance?.OnStateChange.AddListener(OnGameStateChanged);
+        onHealthChanged = new UnityEvent<int>();
+        GameManager.Instance.CurrentBoss = gameObject;
     }
 
     protected override void Start()
     {
-        ChangeState(EDemonBossState.Idle);
+        
     }
 
     private void OnGameStateChanged(GameManager.EGameManagerState newState)
     {
-        if (newState == GameManager.EGameManagerState.Playing && GameManager.Instance.OnBossFight)
+        if (newState == GameManager.EGameManagerState.Playing && GameManager.Instance.CurrentBoss == gameObject)
         {
             this.enabled = true;
+            ChangeState(EDemonBossState.Idle);
         }
         else
         {
@@ -95,7 +111,11 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
 
     protected override void OnDisable()
     {
+        Debug.Log("easdasd");
         base.OnDisable();
+        animator.Play("Idle");
+        DemonBossState state = currentState as DemonBossState;
+        state.KillCoroutines();
     }
     public void MoveToTransform(Vector3 ToPoint, float duration)
     {
@@ -138,6 +158,11 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
             spriteRenderer.flipX = false;
         }
     }
+    public void ToggleHeadGlow()
+    {
+        DOTween.To(() => spriteRenderer.material.GetFloat("_EmissionPercent1"), x => spriteRenderer.material.SetFloat("_EmissionPercent1",x),headGlow? 0 : 2,1f);
+        headGlow = !headGlow;
+    }
 
 }
 
@@ -153,17 +178,22 @@ public enum EDemonBossState
 public abstract class DemonBossState : BaseState<EDemonBossState>
 {
     protected DemonBossController controller;
+    protected List<Coroutine> coroutines; 
 
     public DemonBossState(DemonBossController _controller)
     {
         controller = _controller;
+        coroutines = new List<Coroutine>();
     }
     public void SetFlip(bool value)
     {
-        //attackHitbox.localScale = new Vector3(value != spriteRenderer.flipX ? -attackHitbox.localScale.x : attackHitbox.localScale.x,attackHitbox.localScale.y,attackHitbox.localScale.z);
-        //landFXPlayerPoint.localPosition = new Vector3(value != spriteRenderer.flipX ? -landFXPlayerPoint.localPosition.x : landFXPlayerPoint.localPosition.x, landFXPlayerPoint.localPosition.y, landFXPlayerPoint.localPosition.z);
-        //landFXRenderer.flipX = value;
         controller.spriteRenderer.flipX = value;
-        //wallSlideParticleTransform.localPosition = new Vector3(value ? .539f : -.539f, wallSlideParticleTransform.localPosition.y);
+    }
+    public void KillCoroutines()
+    {
+        foreach (var coroutine in coroutines)
+        {
+            controller.StopCoroutine(coroutine);
+        }
     }
 }

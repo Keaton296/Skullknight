@@ -26,11 +26,15 @@ public class StatBar : MonoBehaviour
         else changeSlider.value = newValue;
         valueSlider.value = newValue;
     }
-    private void Update()
+
+    public void SetValue(float newValue)
     {
-        if (Input.GetKeyDown(KeyCode.Space))
-        {
-            OnValueChange(valueSlider.value -.1f);
+        if (changeSliderTween != null) 
+        { 
+            changeSliderTween.Kill();
+            changeSliderTween = null;
         }
+        changeSlider.value = newValue;
+        valueSlider.value = newValue;
     }
 }

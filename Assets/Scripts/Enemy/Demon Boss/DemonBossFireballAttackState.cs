@@ -11,7 +11,7 @@ namespace Skullknight.Enemy.Demon_Boss
         { }
         public override void EnterState()
         {
-            controller.StartCoroutine(FireballAttack());
+            coroutines.Add(controller.StartCoroutine(FireballAttack()));
         }
 
         public override void ExitState()

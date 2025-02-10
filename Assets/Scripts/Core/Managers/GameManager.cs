@@ -9,6 +9,7 @@ using Unity.VisualScripting;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 public class GameManager : StateManager<GameManager.EGameManagerState>
 {
@@ -24,18 +25,19 @@ public class GameManager : StateManager<GameManager.EGameManagerState>
     
     [SerializeField] private CutsceneManager m_cutsceneManager; //cutsceneManager 
     [SerializeField] private CheckpointManager m_checkpointManager; //checkpointManager
-    [SerializeField] private bool onBossfight = false;
-    public UnityEvent<bool> OnBossFightToggle;
-    public bool OnBossFight
+    [SerializeField] public bool OnBossFight => currentBoss!=null;
+    [SerializeField] private GameObject currentBoss;
+    public UnityEvent<GameObject> OnBossChange;
+    public GameObject CurrentBoss
     {
         get
         {
-            return onBossfight;
+            return currentBoss;
         }
         set
         {
-            onBossfight = value;
-            OnBossFightToggle?.Invoke(onBossfight);
+            currentBoss = value;
+            OnBossChange?.Invoke(currentBoss);
         }
     }
     private CutsceneGameState m_cutsceneState; 
@@ -154,10 +156,6 @@ internal class CutsceneGameState : BaseState<GameManager.EGameManagerState>
 
     private void OnCutsceneEnd()
     {
-        if (GameManager.Instance.CutsceneManager.Cutscenes[cutsceneIndex].isBossCutscene)
-        {
-            GameManager.Instance.OnBossFight = true;
-        }
         GameManager.Instance.ChangeState(GameManager.EGameManagerState.Playing);
     }
 

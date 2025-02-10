@@ -23,7 +23,8 @@ namespace Skullknight.Player.Statemachine
             set => throw new System.NotImplementedException(); 
         }
 
-        public UnityEvent OnHealthChanged { get; set; }
+        public int MaxHealth { get; }
+        public UnityEvent<int> OnHealthChanged { get; set; }
 
         public BoxCollider2D ActiveBoxCollider2D 
         {
@@ -235,6 +236,16 @@ namespace Skullknight.Player.Statemachine
         {
             rb.AddForce(Vector2.down * (rb.velocity.y * m_jumpCutPercentage),ForceMode2D.Impulse);
         }
+
+        public void SwordAttack()
+        {
+            var hits = Physics2D.BoxCastAll(atk0Collider.bounds.center, atk0Collider.bounds.size, 0, Vector3.up, .1f, attackMask);
+            foreach (var item in hits)
+            {
+                var damageablecomp = item.transform.GetComponent<IDamageable>();
+                if (damageablecomp != null) damageablecomp.Health -= 10;
+            }
+        }
         public void Crouchwalk(float inputAxis)
         {
             float ACCELERATION = .5f;
@@ -305,6 +316,7 @@ namespace Skullknight.Player.Statemachine
         public void SetFlip(bool value)
         {
             spriteRenderer.flipX = value;
+            atk0Collider.transform.localScale = new Vector3(value ? -1 : 1,1,1);
         }
 
         public void RegenerateStamina()

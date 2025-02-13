@@ -74,7 +74,7 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _EmissionPercent: 1
+    - _EmissionPercent: 0.12
     - _EnableExternalAlpha: 0
     - _HitFXPercent: 0
     - _SecondEmissionPercent: 0
@@ -83,7 +83,7 @@ Material:
     - _Color: {r: 1, g: 0.15137225, b: 0, a: 1}
     - _FirstEmissionColor: {r: 0.8392157, g: 0.1989992, b: 0, a: 0}
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
-    - _LaserColor: {r: 9.082411, g: 0.4946621, b: 0, a: 0}
+    - _LaserColor: {r: 0, g: 0.41609192, b: 16, a: 0}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _SecondEmissionColor: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []

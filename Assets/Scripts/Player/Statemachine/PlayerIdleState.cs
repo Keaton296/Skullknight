@@ -10,6 +10,7 @@ namespace Player.Statemachine
 
         public override void EnterState()
         {
+            controller.animator.Play("Idle");
             controller.ActiveBoxCollider2D = controller.standingCollider;
             controller.ActiveBoxCollider2D.sharedMaterial = controller.stoppingPhysicMaterial;
         }
@@ -22,8 +23,6 @@ namespace Player.Statemachine
 
         public override void StateUpdate()
         {
-            if(!controller.animator.GetCurrentAnimatorStateInfo(0).IsName("Idle")) controller.animator.SetTrigger("idle");
-        
             controller.RegenerateStamina();
         
             if (controller.playerInput.actions["Crouch"].IsPressed()) controller.ChangeState(EPlayerState.Crouching);

@@ -20,7 +20,7 @@ namespace Player.Statemachine
         {
             controller.ActiveBoxCollider2D = controller.crouchCollider;
             controller.crouchCollider.sharedMaterial = controller.slidingPhysicMaterial;
-            controller.animator.SetTrigger("slide");
+            controller.animator.Play("Slide");
             controller.Groundslide();
             controller.OnSlide?.Invoke();
         }

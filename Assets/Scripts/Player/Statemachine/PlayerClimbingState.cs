@@ -27,12 +27,11 @@ namespace Player.Statemachine
 
         public override void EnterState()
         {
-            controller.animator.SetTrigger("climb");
+            controller.animator.Play("Climb");
         }
 
         public override void ExitState()
         {
-            controller.animator.SetTrigger("idle");
             controller.Unhang();
         }
 
@@ -48,11 +47,6 @@ namespace Player.Statemachine
         {
             AnimatorStateInfo state = controller.animator.GetCurrentAnimatorStateInfo(0);
             return state.IsName("Climb") && state.normalizedTime >= 0.95f;
-        }
-        private IEnumerator DelayedKinematicDisable()
-        {
-            yield return new WaitForFixedUpdate();
-            controller.rb.isKinematic = false;
         }
     }
 }

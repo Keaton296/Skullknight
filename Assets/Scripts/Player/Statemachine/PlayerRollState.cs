@@ -19,8 +19,8 @@ namespace Player.Statemachine
         public override void EnterState()
         {
             controller.Roll();
-            controller.animator.SetTrigger("roll");
-            controller.StartCoroutine(RollCooldown());
+            controller.animator.Play("Roll");
+            //controller.StartCoroutine(RollCooldown()); to prevent unlimited rolls
         }
 
         public override void StateUpdate()

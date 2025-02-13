@@ -28,7 +28,7 @@ namespace Skullknight.State
             currentState?.StateFixedUpdate();
         }
 
-        public void ChangeState(EState newState) 
+        public virtual void ChangeState(EState newState) 
         {
             if (states.ContainsKey(newState))
             {

@@ -33,7 +33,7 @@ namespace Player.Statemachine
 
         public override void EnterState()
         {
-            controller.animator.SetTrigger("wallslide");
+            controller.animator.Play("WallSlide");
             // controller.wallSlideParticle.Play();
             controller.rb.velocity = Vector2.up * controller.rb.velocity.magnitude;
         }

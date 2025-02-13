@@ -10,7 +10,7 @@ namespace Player.Statemachine
         public override void EnterState()
         {
             controller.rb.gravityScale = controller.FallingGravityScale;
-            controller.animator.SetTrigger("fallbetween");
+            controller.animator.Play("Fallbetween");
         } 
         public override void ExitState()
         {

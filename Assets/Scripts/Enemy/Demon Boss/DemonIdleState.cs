@@ -14,6 +14,7 @@ public class DemonIdleState : DemonBossState
     public override void EnterState()
     {
         controller.animator.Play("Idle");
+        controller.canTurn = true;
         controller.canTakeDamage = true;
         coroutines.Add(controller.StartCoroutine(PrepareNextAction()));
     }
@@ -36,13 +37,13 @@ public class DemonIdleState : DemonBossState
                 break;
             case DemonBossController.DemonBossPhase.SecondPhase:
                 float rolltwo = Random.Range(0f, 1f);
-                if (rolltwo > 0.5f)
+                if (rolltwo > 0.65f)
                 {
-                    //laser attack
+                    controller.ChangeState(EDemonBossState.LaserAttack);
                 }
                 else
                 {
-                    //breath attack
+                    controller.ChangeState(EDemonBossState.BreathAttack);
                 }
                 break;
             default:
@@ -56,7 +57,10 @@ public class DemonIdleState : DemonBossState
 
     public override void StateUpdate()
     {
-        controller.LookPlayer();
+        if (controller.canTurn)
+        {
+            controller.LookPlayer();
+        }
     }
 
     public override void StateFixedUpdate()

@@ -1,42 +1,42 @@
 using System.Collections;
 using System.Collections.Generic;
+using Cinemachine;
 using UnityEngine;
 using DG.Tweening;
+using UnityEngine.Serialization;
 
 public class LaserShooter : MonoBehaviour
 {
-    [SerializeField] Transform target;
+    [SerializeField] private Transform shootPoint;
+    
     [SerializeField] LineRenderer laserRenderer;
-    [SerializeField] float chargeTimeSeconds = 4f;
-    Coroutine chargeCoroutine;
-    private void Start()
-    {
-        
-        chargeCoroutine = null;
-        ShootTarget(target);
-    }
+    [SerializeField] private Animator laserAnimator;
+
+    [SerializeField] private LayerMask laserStoppingMask;
+    [SerializeField] private CinemachineImpulseSource impulseSrc;
+    
+    Coroutine fireCoroutine;
     public void ShootTarget(Transform _target)
     {
-        if (chargeCoroutine == null) chargeCoroutine = StartCoroutine(Shoot(_target));
-    }
-    public void ShootPoint()
-    {
-
+        if (fireCoroutine != null)
+        {
+            StopCoroutine(fireCoroutine);
+        }
+        fireCoroutine = StartCoroutine(Shoot(_target));
     }
     IEnumerator Shoot(Transform _target)
     {
-        target = _target;
-        this.enabled = true;
-        laserRenderer.enabled = true;
+        Vector2 direction = _target.position - shootPoint.position;
+        direction.Normalize();
+        var hit = Physics2D.Raycast(shootPoint.position,direction,50f,laserStoppingMask);
+        laserRenderer.SetPositions(new Vector3[] { shootPoint.position, hit.point });
+        impulseSrc.GenerateImpulse(new Vector3(Random.Range(0f,1f), Random.Range(0f,1f), 0));
+        laserAnimator.Play("Laser");
+        DOTween.To(() => laserRenderer.widthMultiplier, x => laserRenderer.widthMultiplier = x, 0f, laserAnimator.GetCurrentAnimatorStateInfo(0).length);
+        yield return new WaitForSeconds(laserAnimator.GetCurrentAnimatorStateInfo(0).length);
+        yield return null;
         laserRenderer.widthMultiplier = 1f;
-        DOTween.To(() => laserRenderer.widthMultiplier, x => laserRenderer.widthMultiplier = x, 0f, chargeTimeSeconds);
-        yield return new WaitForSeconds(chargeTimeSeconds);
-        laserRenderer.enabled = false;
-        this.enabled = false;
-        chargeCoroutine = null;
+        fireCoroutine = null;
     }
-    private void Update()
-    {
-        laserRenderer.SetPositions(new Vector3[] { transform.position, target.position });
-    }
+   
 }

@@ -26,6 +26,9 @@ namespace Skullknight
                     escapeMenu.SetActive(true);
                     EventSystem.current.SetSelectedGameObject(firstSelectedButton);
                     break;
+                case GameManager.EGameManagerState.Cutscene:
+                    escapeMenu.SetActive(false);
+                    break;
             }
         }
     }

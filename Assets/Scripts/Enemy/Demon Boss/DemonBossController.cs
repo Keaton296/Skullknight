@@ -24,6 +24,7 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
 
     [SerializeField] private Animator fireAnimator;
     [SerializeField] private GameObject fireballPrefab;
+    [SerializeField] private LaserShooter laserShooter;
     
     
     public Tween takingDamageTween;
@@ -58,6 +59,10 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
                         GameManager.Instance.ToCutscene(2);
                         return;
                     }
+                    else if (Phase == DemonBossPhase.SecondPhase)
+                    {
+                        GameManager.Instance.ToCutscene(3);
+                    }
                 }
                 health = value;
                 OnHealthChanged?.Invoke(value);
@@ -78,19 +83,43 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
     private UnityEvent<int> onHealthChanged;
     protected override void Awake()
     {
+        onHealthChanged = new UnityEvent<int>();
         states.Add(EDemonBossState.Idle,new DemonIdleState(this));
         states.Add(EDemonBossState.BreathAttack,new DemonBreathAttackState(this));
         states.Add(EDemonBossState.FireballAttack,new DemonBossFireballAttackState(this));
+        states.Add(EDemonBossState.LaserAttack, new DemonBossLaserAttack(this));
         GameManager.Instance?.OnStateChange.AddListener(OnGameStateChanged);
-        onHealthChanged = new UnityEvent<int>();
         GameManager.Instance.CurrentBoss = gameObject;
     }
 
+    public void LaserAttack()
+    {
+        canTurn = false;
+        laserShooter.ShootTarget(PlayerController.Instance.transform);
+    }
     protected override void Start()
     {
         
     }
-
+    public override void ChangeState(EDemonBossState newState) 
+    {
+        if (states.ContainsKey(newState))
+        {
+            currentState?.UnsubscribeEvents();
+            DemonBossState dState = currentState as DemonBossState;
+            dState?.KillCoroutines();
+            currentState?.ExitState();
+            currentState = states[newState];
+            stateEnum = newState;
+            OnStateChange?.Invoke(stateEnum);
+            currentState.EnterState();
+            currentState.SubscribeEvents();
+        }
+        else
+        {
+            Debug.LogError(string.Format("State '{0}' not found", newState));
+        }
+    }
     private void OnGameStateChanged(GameManager.EGameManagerState newState)
     {
         if (newState == GameManager.EGameManagerState.Playing && GameManager.Instance.CurrentBoss == gameObject)
@@ -119,7 +148,11 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
     }
     public void MoveToTransform(Vector3 ToPoint, float duration)
     {
-        if(movementTween != null) movementTween.Kill();
+        if(movementTween != null)
+        {
+            movementTween.Kill();
+            movementTween = null;
+        }
         movementTween = transform.DOMove(ToPoint, duration, false);
     }
 
@@ -151,19 +184,22 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
     {
         if (PlayerController.Instance?.transform.position.x - transform.position.x > 0)
         {
-            spriteRenderer.flipX = true;
+            SetFlip(true);
         }
         else
         {
-            spriteRenderer.flipX = false;
+            SetFlip(false);
         }
     }
-    public void ToggleHeadGlow()
-    {
-        DOTween.To(() => spriteRenderer.material.GetFloat("_EmissionPercent1"), x => spriteRenderer.material.SetFloat("_EmissionPercent1",x),headGlow? 0 : 2,1f);
-        headGlow = !headGlow;
+    /// <summary>
+    /// Looks to left unflipped.
+    /// </summary>
+    /// <param name="flip"></param>
+    public void SetFlip(bool value)
+    { //looks to left unflipped
+        spriteRenderer.flipX = value;
+        mouthPoint.localPosition = new Vector3(Mathf.Abs(mouthPoint.localPosition.x) * (value ? 1 : -1),mouthPoint.localPosition.y,0f);
     }
-
 }
 
 public enum EDemonBossState
@@ -171,6 +207,7 @@ public enum EDemonBossState
     Idle,
     BreathAttack,
     FireballAttack,
+    LaserAttack,
     Transforming,
     IdleTwo
 }
@@ -185,15 +222,15 @@ public abstract class DemonBossState : BaseState<EDemonBossState>
         controller = _controller;
         coroutines = new List<Coroutine>();
     }
-    public void SetFlip(bool value)
-    {
-        controller.spriteRenderer.flipX = value;
-    }
     public void KillCoroutines()
     {
         foreach (var coroutine in coroutines)
         {
-            controller.StopCoroutine(coroutine);
+            if (coroutine != null)
+            {
+                controller.StopCoroutine(coroutine);
+            }
         }
+        coroutines.Clear();
     }
 }

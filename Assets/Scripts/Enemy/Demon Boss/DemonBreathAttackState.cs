@@ -42,8 +42,8 @@ namespace Skullknight.Enemy.Demon_Boss
         {
             controller.animator.Play("Breath");
             yield return null;
-            yield return new WaitUntil(() =>!controller.animator.GetCurrentAnimatorStateInfo(0).IsName("Breath"));
-            //controller.ChangeState(EDemonBossState.Retreat);
+            yield return new WaitUntil(() => controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime > .95f);
+            controller.animator.Play("Idle");
             controller.MoveToIdlePosition();
             yield return new WaitForSeconds(1f);
             controller.ChangeState(EDemonBossState.Idle);

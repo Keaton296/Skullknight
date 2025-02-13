@@ -11,6 +11,7 @@ namespace Skullknight.Enemy.Demon_Boss
         { }
         public override void EnterState()
         {
+            controller.canTurn = true;
             coroutines.Add(controller.StartCoroutine(FireballAttack()));
         }
 
@@ -43,7 +44,8 @@ namespace Skullknight.Enemy.Demon_Boss
         {
             controller.animator.Play("Fireball");
             yield return null;
-            yield return new WaitUntil(() =>!controller.animator.GetCurrentAnimatorStateInfo(0).IsName("Fireball"));
+            yield return new WaitUntil(() =>controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime > .95f);
+            controller.animator.Play("Idle");
             controller.MoveToIdlePosition();
             yield return new WaitForSeconds(1f);
             controller.ChangeState(EDemonBossState.Idle);

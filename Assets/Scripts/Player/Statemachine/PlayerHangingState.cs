@@ -26,7 +26,7 @@ namespace Player.Statemachine
 
         public override void EnterState()
         {
-            controller.animator.SetTrigger("hang");
+            controller.animator.Play("Hang");
             controller.Hang();
         }
         public override void ExitState()

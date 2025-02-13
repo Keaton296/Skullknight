@@ -21,7 +21,7 @@ public class GameManager : StateManager<GameManager.EGameManagerState>
         Gameover
     }
     public static GameManager Instance;
-    [SerializeField] private PlayerInput playerInput;
+    [SerializeField] public PlayerInput playerInput;
     
     [SerializeField] private CutsceneManager m_cutsceneManager; //cutsceneManager 
     [SerializeField] private CheckpointManager m_checkpointManager; //checkpointManager
@@ -50,7 +50,7 @@ public class GameManager : StateManager<GameManager.EGameManagerState>
         states.Add(EGameManagerState.Playing,new PlayingGameState());
         states.Add(EGameManagerState.EscapeMenu,new EscapeMenuGameState());
         states.Add(EGameManagerState.Gameover,new GameOverGameState(this));
-        m_cutsceneState = new CutsceneGameState(0);
+        m_cutsceneState = new CutsceneGameState(0,m_cutsceneManager);
         states.Add(EGameManagerState.Cutscene, m_cutsceneState);
     }
 
@@ -86,7 +86,7 @@ public class GameManager : StateManager<GameManager.EGameManagerState>
             playerInput.actions["MenuUI"].performed -= OnEscapeMenuToggle;
         }
     }
-    private void OnEscapeMenuToggle(InputAction.CallbackContext obj)
+    public void OnEscapeMenuToggle(InputAction.CallbackContext obj)
     { 
         ToggleEscapeMenu();
     }
@@ -101,7 +101,26 @@ public class GameManager : StateManager<GameManager.EGameManagerState>
         else if(stateEnum == EGameManagerState.EscapeMenu)
         {
             Time.timeScale = 1;
-            ChangeState(EGameManagerState.Playing);
+            var escapeState = states[EGameManagerState.EscapeMenu] as EscapeMenuGameState;
+            if (escapeState.IsStoppedCutscene)
+            {
+                ChangeState(EGameManagerState.Cutscene);
+                escapeState.IsStoppedCutscene = false; 
+            }
+            else
+            {
+                ChangeState(EGameManagerState.Playing);
+            }
+        }
+        else if (stateEnum == EGameManagerState.Cutscene)
+        { 
+            //m_cutsceneManager.Pause();
+            var escapeState = states[EGameManagerState.EscapeMenu] as EscapeMenuGameState;
+            var cutsceneState = states[EGameManagerState.Cutscene] as CutsceneGameState;
+            cutsceneState.isStoppedByEscapeMenu = true;
+            escapeState.IsStoppedCutscene = true;
+            Time.timeScale = 0;
+            ChangeState(EGameManagerState.EscapeMenu);
         }
     }
 
@@ -131,10 +150,12 @@ internal class CutsceneGameState : BaseState<GameManager.EGameManagerState>
 {
     public int cutsceneIndex;
     private bool pressedSkip = false;
-    
-    public CutsceneGameState(int _cutsceneIndex)
+    private CutsceneManager cutsceneManager;
+    public bool isStoppedByEscapeMenu = false;
+    public CutsceneGameState(int _cutsceneIndex, CutsceneManager manager)
     {
         cutsceneIndex = _cutsceneIndex;
+        cutsceneManager = manager;
     }
 
     public override void StateUpdate()
@@ -149,8 +170,15 @@ internal class CutsceneGameState : BaseState<GameManager.EGameManagerState>
 
     public override void SubscribeEvents()
     {
-        GameManager.Instance.PlayerInput.actions["Submit"].performed += OnSkipPressed;
-        GameManager.Instance.PlayerInput.actions["Left Click"].performed += OnSkipPressed;
+        GameManager.Instance.playerInput.actions["Menu"].performed += GameManager.Instance.OnEscapeMenuToggle;
+        GameManager.Instance.playerInput.actions["MenuUI"].performed += GameManager.Instance.OnEscapeMenuToggle;
+        
+        if(cutsceneManager.Cutscenes[cutsceneIndex].skippable)
+        {
+            GameManager.Instance.PlayerInput.actions["Submit"].performed += OnSkipPressed;
+            GameManager.Instance.PlayerInput.actions["Left Click"].performed += OnSkipPressed;
+        }
+        
         GameManager.Instance.CutsceneManager.OnCutsceneFinished.AddListener(OnCutsceneEnd);
     }
 
@@ -174,8 +202,14 @@ internal class CutsceneGameState : BaseState<GameManager.EGameManagerState>
 
     public override void UnsubscribeEvents()
     {
-        GameManager.Instance.PlayerInput.actions["Submit"].performed -= OnSkipPressed;
-        GameManager.Instance.PlayerInput.actions["Left Click"].performed -= OnSkipPressed;
+        if(cutsceneManager.Cutscenes[cutsceneIndex].skippable)
+        {
+            GameManager.Instance.PlayerInput.actions["Submit"].performed -= OnSkipPressed;
+            GameManager.Instance.PlayerInput.actions["Left Click"].performed -= OnSkipPressed;
+        }
+        GameManager.Instance.playerInput.actions["Menu"].performed -= GameManager.Instance.OnEscapeMenuToggle;
+        GameManager.Instance.playerInput.actions["MenuUI"].performed -= GameManager.Instance.OnEscapeMenuToggle;
+        
         GameManager.Instance.CutsceneManager.OnCutsceneFinished.RemoveListener(OnCutsceneEnd);
     }
 
@@ -185,8 +219,15 @@ internal class CutsceneGameState : BaseState<GameManager.EGameManagerState>
         //easing in animation, screen getting darker
         //on end of easing, start the cutscene.
         //enable the escape menu
-        pressedSkip = false;
-        GameManager.Instance.CutsceneManager.PlayCutscene(cutsceneIndex);
+        if (isStoppedByEscapeMenu)
+        {
+            isStoppedByEscapeMenu = false;
+        }
+        else
+        {
+            pressedSkip = false;
+            GameManager.Instance.CutsceneManager.PlayCutscene(cutsceneIndex);
+        }
     }
 
     public override void ExitState()
@@ -279,6 +320,7 @@ internal class GameOverGameState : BaseState<GameManager.EGameManagerState>
 }
 internal class EscapeMenuGameState : BaseState<GameManager.EGameManagerState>
 {
+    public bool IsStoppedCutscene = false; 
     public override void StateUpdate()
     {
         
@@ -305,11 +347,10 @@ internal class EscapeMenuGameState : BaseState<GameManager.EGameManagerState>
         //easing in animation, screen getting darker
         //on end of easing, start the cutscene.
         //enable the escape menu
-        if(PlayerController.Instance != null) PlayerController.Instance.enabled = false;
     }
 
     public override void ExitState()
     {
-        PlayerController.Instance.enabled = true;
+        
     }
 }

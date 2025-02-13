@@ -16,12 +16,15 @@ namespace Skullknight.Core
         public CutsceneInstance[] Cutscenes => cutscenes;
         [SerializeField] private int selectedIndex = 0;
         public UnityEvent OnCutsceneFinished;
+        public bool Paused => paused;
+        protected bool paused = false;
         
         void Awake()
         {
             //if(playables == null) playables = new PlayableAsset[1];
             director.stopped += (x) =>
             {
+                paused = false;
                 OnCutsceneFinished?.Invoke();
             };
         }
@@ -43,6 +46,17 @@ namespace Skullknight.Core
             PlayCutscene(selectedIndex + 1);
         }
 
+        public void Pause()
+        {
+            director.Pause();
+            paused = true;
+        }
+
+        public void Resume()
+        {
+            director.Resume();
+            paused = false;
+        }
         public void EndCutscene()
         {
             if (director.time < director.duration)
@@ -69,5 +83,6 @@ namespace Skullknight.Core
         public PlayableAsset asset;
         public bool playOnStart = false;
         public bool isBossCutscene = false;
+        public bool skippable = false;
     }
 }

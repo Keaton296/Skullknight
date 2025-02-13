@@ -1,4 +1,5 @@
 using System.Collections;
+using Cinemachine;
 using Player.Statemachine;
 using Skullknight.Core;
 using Skullknight.State;
@@ -18,6 +19,7 @@ namespace Skullknight.Player.Statemachine
         public Animator animator;
         public SpriteRenderer spriteRenderer;
         [FormerlySerializedAs("inputSystem")] public PlayerInput playerInput;
+        [SerializeField] private CinemachineImpulseSource attackImpulse;
         public int Health {
             get => throw new System.NotImplementedException();
             set => throw new System.NotImplementedException(); 
@@ -161,7 +163,7 @@ namespace Skullknight.Player.Statemachine
         void OnDisable()
         {
             base.OnDisable();
-            animator.SetTrigger("idle");
+            animator.Play("Idle");
         }
         public void Roll()
         {
@@ -169,7 +171,7 @@ namespace Skullknight.Player.Statemachine
             rb.velocity = Vector2.right * (playerInput.actions["Horizontal"].ReadValue<float>() * rollingVelocity);
             OnRoll?.Invoke();
         }
-        public void Run(float inputAxis)
+        public void MoveOnGround(float inputAxis)
         {
             float ACCELERATION = 1f;
             float diffToMaxVel = inputAxis * maxRunningVelocity - rb.velocity.x;
@@ -214,7 +216,6 @@ namespace Skullknight.Player.Statemachine
 
         public void OnGameStateChanged(GameManager.EGameManagerState state)
         {
-            Debug.Log("hello from developer");
             switch (state)
             {
                 case GameManager.EGameManagerState.Playing:
@@ -240,11 +241,17 @@ namespace Skullknight.Player.Statemachine
         public void SwordAttack()
         {
             var hits = Physics2D.BoxCastAll(atk0Collider.bounds.center, atk0Collider.bounds.size, 0, Vector3.up, .1f, attackMask);
+            int hitCount = 0;
             foreach (var item in hits)
             {
                 var damageablecomp = item.transform.GetComponent<IDamageable>();
-                if (damageablecomp != null) damageablecomp.Health -= 10;
+                if (damageablecomp != null)
+                {
+                    hitCount++;
+                    damageablecomp.Health -= 10;
+                }
             }
+            if(hitCount > 0 ) attackImpulse.GenerateImpulse();
         }
         public void Crouchwalk(float inputAxis)
         {

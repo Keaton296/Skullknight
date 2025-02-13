@@ -13,8 +13,9 @@ namespace Player.Statemachine
 
         public override void EnterState()
         {
+            controller.animator.Play("Run");
             controller.ActiveBoxCollider2D.sharedMaterial = controller.normalPhysicMaterial;
-            controller.Run(controller.playerInput.actions["Horizontal"].ReadValue<float>());
+            controller.MoveOnGround(controller.playerInput.actions["Horizontal"].ReadValue<float>());
         }
         public override void ExitState()
         {
@@ -50,7 +51,7 @@ namespace Player.Statemachine
             }
             else
             {
-                if(!controller.animator.GetCurrentAnimatorStateInfo(0).IsName("Run")) controller.animator.SetTrigger("run");
+                //if(!controller.animator.GetCurrentAnimatorStateInfo(0).IsName("Run")) controller.animator.SetTrigger("run");
                 controller.animator.SetFloat("runAnimSpeed", velocityProgress * controller.maxRunningAnimSpeed);
             }
         
@@ -64,7 +65,7 @@ namespace Player.Statemachine
             {
                 if (controller.playerInput.actions["Horizontal"].IsPressed())
                 {
-                    controller.Run(horizontal);
+                    controller.MoveOnGround(horizontal);
                 }
             }
             else

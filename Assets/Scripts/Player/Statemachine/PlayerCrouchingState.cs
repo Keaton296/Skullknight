@@ -36,7 +36,7 @@ namespace Player.Statemachine
 
             
             float horizontal = controller.playerInput.actions["Horizontal"].ReadValue<float>();
-        
+            
             if (horizontal != 0)
             {
                 if(!controller.animator.GetCurrentAnimatorStateInfo(0).IsName("CrouchWalk")) controller.animator.Play("CrouchWalk");
@@ -67,11 +67,18 @@ namespace Player.Statemachine
         public override void SubscribeEvents()
         {
             controller.playerInput.actions["Crouch"].canceled += OnCrouchCanceled;
+            controller.playerInput.actions["Attack"].performed += OnAttackPerformed;
         }
-
         public override void UnsubscribeEvents()
         {
             controller.playerInput.actions["Crouch"].canceled -= OnCrouchCanceled;
+            controller.playerInput.actions["Attack"].performed -= OnAttackPerformed;
         }
+
+        private void OnAttackPerformed(InputAction.CallbackContext obj)
+        {
+            controller.ChangeState(EPlayerState.CrouchAttack);
+        }
+
     }
 }

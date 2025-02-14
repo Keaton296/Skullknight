@@ -22,7 +22,10 @@ namespace Skullknight.Enemy.Demon_Boss
 
         public override void StateUpdate()
         {
-            
+            if (controller.canTurn)
+            {
+                controller.LookPlayer();
+            }
         }
 
         public override void StateFixedUpdate()

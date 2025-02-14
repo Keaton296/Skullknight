@@ -10,6 +10,7 @@ namespace Skullknight.Enemy.Demon_Boss
 
         public override void EnterState()
         {
+            controller.canTurn = true;
             coroutines.Add(controller.StartCoroutine(AttackRoutine()));
         }
 
@@ -20,7 +21,10 @@ namespace Skullknight.Enemy.Demon_Boss
 
         public override void StateUpdate()
         {
-            
+            if (controller.canTurn)
+            {
+                controller.LookPlayer();
+            }
         }
 
         public override void StateFixedUpdate()

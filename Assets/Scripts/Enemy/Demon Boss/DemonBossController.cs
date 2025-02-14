@@ -1,6 +1,5 @@
 using UnityEngine;
 using DG.Tweening;
-using System.Collections.Generic;
 using Skullknight.Core;
 using Skullknight.Enemy.Demon_Boss;
 using Skullknight.Player.Statemachine;
@@ -23,6 +22,7 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
     public Animator animator;
 
     [SerializeField] private Animator fireAnimator;
+    [SerializeField] private SpriteRenderer fireSpriteRenderer;
     [SerializeField] private GameObject fireballPrefab;
     [SerializeField] private LaserShooter laserShooter;
     
@@ -163,6 +163,7 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
 
     public void MoveToPlayerAttackPoint()
     {
+        canTurn = false;
         MoveToTransform(PlayerController.Instance.transform.position - FireBreathTransform.localPosition, 0.166f);
     }
 
@@ -196,8 +197,11 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
     /// </summary>
     /// <param name="flip"></param>
     public void SetFlip(bool value)
-    { //looks to left unflipped
+    {
         spriteRenderer.flipX = value;
+        FireBreathTransform.localPosition = new Vector3(Mathf.Abs(FireBreathTransform.localPosition.x) * (value ? 1 : -1), FireBreathTransform.localPosition.y,0);
+        fireAnimator.GetComponent<SpriteRenderer>().flipX = value;
+        fireSpriteRenderer.flipX = value;
         mouthPoint.localPosition = new Vector3(Mathf.Abs(mouthPoint.localPosition.x) * (value ? 1 : -1),mouthPoint.localPosition.y,0f);
     }
 }
@@ -210,27 +214,4 @@ public enum EDemonBossState
     LaserAttack,
     Transforming,
     IdleTwo
-}
-
-public abstract class DemonBossState : BaseState<EDemonBossState>
-{
-    protected DemonBossController controller;
-    protected List<Coroutine> coroutines; 
-
-    public DemonBossState(DemonBossController _controller)
-    {
-        controller = _controller;
-        coroutines = new List<Coroutine>();
-    }
-    public void KillCoroutines()
-    {
-        foreach (var coroutine in coroutines)
-        {
-            if (coroutine != null)
-            {
-                controller.StopCoroutine(coroutine);
-            }
-        }
-        coroutines.Clear();
-    }
 }

@@ -19,7 +19,8 @@ namespace Skullknight.Player.Statemachine
         public Animator animator;
         public SpriteRenderer spriteRenderer;
         [FormerlySerializedAs("inputSystem")] public PlayerInput playerInput;
-        [SerializeField] private CinemachineImpulseSource attackImpulse;
+        [FormerlySerializedAs("attackImpulse")] [SerializeField] public CinemachineImpulseSource recoilImpulse;
+        [SerializeField] public CinemachineImpulseSource bumpImpulse;
         public int Health {
             get => throw new System.NotImplementedException();
             set => throw new System.NotImplementedException(); 
@@ -142,16 +143,45 @@ namespace Skullknight.Player.Statemachine
             states.Add(EPlayerState.Falling, new PlayerFallingState(this));
             states.Add(EPlayerState.Hanging, new PlayerHangingState(this));
             states.Add(EPlayerState.Climbing, new PlayerClimbingState(this));
+            states.Add(EPlayerState.Hurt, new PlayerDamagedState(this));
+            states.Add(EPlayerState.CrouchAttack, new PlayerCrouchingAttackState(this));
             states.Add(EPlayerState.AttackOne, new PlayerAttackingState(this,"atk0",.33f,0.33f,EPlayerState.AttackTwo));
             states.Add(EPlayerState.AttackTwo, new PlayerAttackingState(this,"atk1",.33f,0.33f,null));
             
             ChangeState(EPlayerState.Idle);
             GameManager.Instance.OnStateChange.AddListener(OnGameStateChanged);
         }
-
+        public override void ChangeState(EPlayerState newState) 
+        {
+            if (states.ContainsKey(newState))
+            {
+                currentState?.UnsubscribeEvents();
+                PlayerState dState = currentState as PlayerState;
+                dState?.KillCoroutines();
+                currentState?.ExitState();
+                currentState = states[newState];
+                stateEnum = newState;
+                OnStateChange?.Invoke(stateEnum);
+                currentState.EnterState();
+                currentState.SubscribeEvents();
+            }
+            else
+            {
+                Debug.LogError(string.Format("State '{0}' not found", newState));
+            }
+        }
         protected override void Start()
         {
             
+        }
+
+        protected override void Update()
+        {
+            base.Update();
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                ChangeState(EPlayerState.Hurt);
+            }
         }
 
         protected override void OnEnable()
@@ -251,7 +281,7 @@ namespace Skullknight.Player.Statemachine
                     damageablecomp.Health -= 10;
                 }
             }
-            if(hitCount > 0 ) attackImpulse.GenerateImpulse();
+            if(hitCount > 0 ) recoilImpulse.GenerateImpulse();
         }
         public void Crouchwalk(float inputAxis)
         {

@@ -15,6 +15,7 @@ namespace Skullknight.Enemy.Skeleton
             yield return null;
             yield return new WaitUntil(()=> controller.Animator.GetCurrentAnimatorStateInfo(0).IsName("AttackOne") && 
                                             controller.Animator.GetCurrentAnimatorStateInfo(0).normalizedTime > .95f);
+            Debug.Log("asd");
             controller.ChangeState(Skullknight.Skeleton.ESkeletonState.Chasing);
         }
         public override void EnterState()

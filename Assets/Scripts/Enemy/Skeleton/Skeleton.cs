@@ -15,8 +15,9 @@ namespace Skullknight
     public class Skeleton : EntityController<Skeleton.ESkeletonState,Skeleton>,IDamageable
     {
         public BoxCollider2D collider;
-        [SerializeField] private BoxCollider2D atkCollider;
+        [SerializeField] private Collider2D atkCollider;
         [SerializeField] private LayerMask atkLayer;
+        [SerializeField] private Rigidbody2D rb;
         public SplineContainer splineContainer;
         public int currentWaypointIndex = -1;
         public float evaluationRate;
@@ -85,6 +86,18 @@ namespace Skullknight
             if (player != null)
             {
                 player.TakeDamage(1);
+            }
+        }
+
+        public void AttackPrecise()
+        {
+            RaycastHit2D[] hits = new RaycastHit2D[1];
+            rb.Cast(spriteRenderer.flipX ? -Vector2.right : Vector2.right, hits );
+            if (hits[0].collider == null) return;
+            var player = hits[0].collider.GetComponent<IDamageable>();
+            if (player != null)
+            {
+                player.TakeDamage(1);   
             }
         }
 

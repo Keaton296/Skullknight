@@ -31,11 +31,11 @@ namespace Skullknight.Enemy.Skeleton
             }
             else
             {
-                if ((controller.transform.position.x - PlayerController.Instance.transform.position.x) > 0)
+                if ((controller.transform.position.x - PlayerController.Instance.rb.position.x) > 0)
                     controller.FlipX(true);
                 else controller.FlipX(false);
                 
-                float closestT = SplineUtility.GetNearestPoint(controller.splineContainer.Spline, (float3) PlayerController.Instance.transform.position, out float3 closestPoint, out float asd);
+                float closestT = SplineUtility.GetNearestPoint(controller.splineContainer.Spline, new float3((float2)PlayerController.Instance.rb.position,0f), out float3 closestPoint, out float asd);
                 float step = Mathf.Clamp(asd - controller.splinePosition,-controller.evaluationRate,controller.evaluationRate);
                 controller.splinePosition += step * Time.deltaTime;
                 controller.transform.position =

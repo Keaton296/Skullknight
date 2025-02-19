@@ -10,7 +10,5 @@ namespace Skullknight.State
         public abstract void ExitState();
         public abstract void StateUpdate();
         public abstract void StateFixedUpdate();
-        public abstract void SubscribeEvents();
-        public abstract void UnsubscribeEvents();
     }
 }

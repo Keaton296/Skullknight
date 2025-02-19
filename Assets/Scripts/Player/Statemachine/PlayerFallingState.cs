@@ -10,7 +10,7 @@ namespace Player.Statemachine
         public override void EnterState()
         {
             controller.rb.gravityScale = controller.FallingGravityScale;
-            controller.animator.Play("Fallbetween");
+            controller.Animator.Play("Fallbetween");
         } 
         public override void ExitState()
         {
@@ -31,6 +31,7 @@ namespace Player.Statemachine
             }
             if (controller.groundCollisionChecker.IsColliding && controller.CanJump)
             {
+                controller.landingAudioPlayer.PlayRandom();
                 controller.ChangeState(EPlayerState.Idle);
             }
             else if (horizontal != 0)

@@ -18,7 +18,7 @@ namespace Player.Statemachine
         public override void EnterState()
         {
             controller.ActiveBoxCollider2D = controller.crouchCollider;
-            controller.animator.Play("Crouch");
+            controller.Animator.Play("Crouch");
         }
 
         private void OnCrouchCanceled(InputAction.CallbackContext context)
@@ -39,13 +39,13 @@ namespace Player.Statemachine
             
             if (horizontal != 0)
             {
-                if(!controller.animator.GetCurrentAnimatorStateInfo(0).IsName("CrouchWalk")) controller.animator.Play("CrouchWalk");
+                if(!controller.Animator.GetCurrentAnimatorStateInfo(0).IsName("CrouchWalk")) controller.Animator.Play("CrouchWalk");
                 float crouchWalkProgress = Mathf.Abs(controller.rb.velocity.x) / controller.maxCrouchingVelocity;
-                controller.animator.SetFloat("crouchWalkSpeed",crouchWalkProgress);
+                controller.Animator.SetFloat("crouchWalkSpeed",crouchWalkProgress);
             }
             else
             {
-                if(!controller.animator.GetCurrentAnimatorStateInfo(0).IsName("Crouch")) controller.animator.Play("Crouch");
+                if(!controller.Animator.GetCurrentAnimatorStateInfo(0).IsName("Crouch")) controller.Animator.Play("Crouch");
             }
         }
 

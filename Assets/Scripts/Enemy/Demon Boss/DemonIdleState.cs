@@ -4,16 +4,17 @@ using System.Collections.Generic;
 using UnityEngine;
 using DG.Tweening;
 using Cinemachine;
+using Skullknight.State;
 using Random = UnityEngine.Random;
 
-public class DemonIdleState : DemonBossState
+public class DemonIdleState : EntityState<EDemonBossState,DemonBossController>
 {
     public DemonIdleState(DemonBossController _controller) : base(_controller)
     { }
 
     public override void EnterState()
     {
-        controller.animator.Play("Idle");
+        controller.Animator.Play("Idle");
         controller.canTurn = true;
         controller.canTakeDamage = true;
         coroutines.Add(controller.StartCoroutine(PrepareNextAction()));

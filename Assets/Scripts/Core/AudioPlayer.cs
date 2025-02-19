@@ -1,5 +1,6 @@
 using System;
 using UnityEngine;
+using UnityEngine.Serialization;
 using Random = UnityEngine.Random;
 
 namespace Skullknight.Core
@@ -8,16 +9,18 @@ namespace Skullknight.Core
     public class AudioPlayer : MonoBehaviour
     {
         [SerializeField] private AudioSource audioSource;
+        [SerializeField] private float normalizedVolume;
         [SerializeField] private AudioClip[] audioClips;
 
         void Awake()
         {
-            audioSource = GetComponent<AudioSource>();
+            if(audioSource) audioSource = GetComponent<AudioSource>();
         }
         public void Play(int clipIndex = 0,bool loop = false)
         {
             if (clipIndex <= audioClips.Length - 1)
             {
+                audioSource.volume = normalizedVolume;
                 if (loop)
                 {
                     audioSource.clip = audioClips[clipIndex];

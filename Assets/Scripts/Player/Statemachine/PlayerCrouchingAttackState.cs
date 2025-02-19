@@ -12,9 +12,9 @@ namespace Skullknight.Player.Statemachine
 
         private IEnumerator CrouchAttack()
         {
-            controller.animator.Play("CrouchAttack");
+            controller.Animator.Play("CrouchAttack");
             yield return null;
-            yield return new WaitUntil(()=>controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime > .95f);
+            yield return new WaitUntil(()=>controller.Animator.GetCurrentAnimatorStateInfo(0).normalizedTime > .95f);
             controller.ChangeState(EPlayerState.Crouching);
         }
         public override void EnterState()

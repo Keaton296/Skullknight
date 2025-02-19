@@ -6,18 +6,15 @@ using UnityEngine.Events;
 
 namespace Skullknight.State
 {
-    public abstract class StateManager<EState> : MonoBehaviour where EState : Enum
+    public abstract class StateManager<EState,State> : MonoBehaviour where EState : Enum where State : BaseState<EState>
     {
         protected EState stateEnum;
         public EState StateEnum => stateEnum;
-        protected BaseState<EState> currentState;
-        protected Dictionary<EState, BaseState<EState>> states = new Dictionary<EState, BaseState<EState>>();
+        protected State currentState;
+        protected Dictionary<EState, State> states = new Dictionary<EState, State>();
         
         [HideInInspector] public UnityEvent<EState> OnStateChange;
-
-        abstract protected void Awake();
-        abstract protected void Start();
-
+        
         protected virtual void Update()
         {
             currentState?.StateUpdate();
@@ -32,28 +29,16 @@ namespace Skullknight.State
         {
             if (states.ContainsKey(newState))
             {
-                currentState?.UnsubscribeEvents();
                 currentState?.ExitState();
                 currentState = states[newState];
                 stateEnum = newState;
                 OnStateChange?.Invoke(stateEnum);
                 currentState.EnterState();
-                currentState.SubscribeEvents();
             }
             else
             {
                 Debug.LogError(string.Format("State '{0}' not found", newState));
             }
-        }
-
-        protected virtual void OnEnable()
-        {
-            currentState?.SubscribeEvents();
-        }
-
-        protected virtual void OnDisable()
-        {
-            currentState?.UnsubscribeEvents();
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Player.Statemachine
 
         public override void EnterState()
         {
-            controller.animator.Play("Idle");
+            controller.Animator.Play("Idle");
             controller.ActiveBoxCollider2D = controller.standingCollider;
             controller.ActiveBoxCollider2D.sharedMaterial = controller.stoppingPhysicMaterial;
         }

@@ -33,7 +33,7 @@ namespace Player.Statemachine
 
         public override void EnterState()
         {
-            controller.animator.Play("WallSlide");
+            controller.Animator.Play("WallSlide");
             // controller.wallSlideParticle.Play();
             controller.rb.velocity = Vector2.up * controller.rb.velocity.magnitude;
         }
@@ -43,7 +43,7 @@ namespace Player.Statemachine
             if (Input.GetKeyDown(KeyCode.Space) && controller.wallSlideCheckDeathCoroutine == null)
             {
                 controller.rb.isKinematic = true;
-                controller.rb.velocity = new Vector2(controller.spriteRenderer.flipX ? -controller.maxRunningVelocity : controller.maxRunningVelocity,controller.jumpVelocity);
+                controller.rb.velocity = new Vector2(controller.SpriteRenderer.flipX ? -controller.maxRunningVelocity : controller.maxRunningVelocity,controller.jumpVelocity);
                 controller.rb.isKinematic = false;
                 controller.wallSlideCheckDeathCoroutine = controller.StartCoroutine(WallSlideCheckDeath());
                 controller.ChangeState(EPlayerState.Falling);

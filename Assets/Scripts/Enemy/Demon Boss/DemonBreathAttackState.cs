@@ -1,9 +1,10 @@
 using System.Collections;
+using Skullknight.State;
 using UnityEngine;
 
 namespace Skullknight.Enemy.Demon_Boss
 {
-    public class DemonBreathAttackState : DemonBossState
+    public class DemonBreathAttackState : EntityState<EDemonBossState,DemonBossController>
     {
         public DemonBreathAttackState(DemonBossController _controller) : base(_controller)
         { }
@@ -44,10 +45,10 @@ namespace Skullknight.Enemy.Demon_Boss
 
         public IEnumerator AttackRoutine()
         {
-            controller.animator.Play("Breath");
+            controller.Animator.Play("Breath");
             yield return null;
-            yield return new WaitUntil(() => controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime > .95f);
-            controller.animator.Play("Idle");
+            yield return new WaitUntil(() => controller.Animator.GetCurrentAnimatorStateInfo(0).normalizedTime > .95f);
+            controller.Animator.Play("Idle");
             controller.MoveToIdlePosition();
             yield return new WaitForSeconds(1f);
             controller.ChangeState(EDemonBossState.Idle);

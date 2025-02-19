@@ -217,7 +217,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &7099987868534066834
 Transform:
   m_ObjectHideFlags: 0
@@ -626,6 +626,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 7099987868534066834}
     m_Modifications:
+    - target: {fileID: 3601937773800520169, guid: 2cae75c7aa0972f40be0b5442d3608e1, type: 3}
+      propertyPath: m_Enabled
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4985275657072297518, guid: 2cae75c7aa0972f40be0b5442d3608e1, type: 3}
       propertyPath: m_LocalPosition.x
       value: -3.16
@@ -673,8 +677,16 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 7384472677940885174, guid: 2cae75c7aa0972f40be0b5442d3608e1, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 6979325378116949726}
   m_SourcePrefab: {fileID: 100100000, guid: 2cae75c7aa0972f40be0b5442d3608e1, type: 3}
+--- !u!61 &4202333032441636090 stripped
+BoxCollider2D:
+  m_CorrespondingSourceObject: {fileID: 3601937773800520169, guid: 2cae75c7aa0972f40be0b5442d3608e1, type: 3}
+  m_PrefabInstance: {fileID: 841338543226887443}
+  m_PrefabAsset: {fileID: 0}
 --- !u!95 &5520119538829218916 stripped
 Animator:
   m_CorrespondingSourceObject: {fileID: 5131411471606598007, guid: 2cae75c7aa0972f40be0b5442d3608e1, type: 3}
@@ -690,3 +702,24 @@ SpriteRenderer:
   m_CorrespondingSourceObject: {fileID: 5974524924137442028, guid: 2cae75c7aa0972f40be0b5442d3608e1, type: 3}
   m_PrefabInstance: {fileID: 841338543226887443}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &7915043583812201381 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 7384472677940885174, guid: 2cae75c7aa0972f40be0b5442d3608e1, type: 3}
+  m_PrefabInstance: {fileID: 841338543226887443}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &6979325378116949726
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7915043583812201381}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 198aeef334c9dbe4a95ff557d28dbaca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  layerMask:
+    serializedVersion: 2
+    m_Bits: 128
+  collider: {fileID: 4202333032441636090}

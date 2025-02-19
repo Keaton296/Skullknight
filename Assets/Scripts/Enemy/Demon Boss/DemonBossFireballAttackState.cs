@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Skullknight.Enemy.Demon_Boss
 {
-    public class DemonBossFireballAttackState : DemonBossState
+    public class DemonBossFireballAttackState : EntityState<EDemonBossState,DemonBossController>
     {
         public DemonBossFireballAttackState(DemonBossController _controller) : base(_controller)
         { }
@@ -45,10 +45,10 @@ namespace Skullknight.Enemy.Demon_Boss
 
         private IEnumerator FireballAttack()
         {
-            controller.animator.Play("Fireball");
+            controller.Animator.Play("Fireball");
             yield return null;
-            yield return new WaitUntil(() =>controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime > .95f);
-            controller.animator.Play("Idle");
+            yield return new WaitUntil(() =>controller.Animator.GetCurrentAnimatorStateInfo(0).normalizedTime > .95f);
+            controller.Animator.Play("Idle");
             controller.MoveToIdlePosition();
             yield return new WaitForSeconds(1f);
             controller.ChangeState(EDemonBossState.Idle);

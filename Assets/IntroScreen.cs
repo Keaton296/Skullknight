@@ -12,14 +12,6 @@ namespace Skullknight
         [SerializeField] private GameObject firstSelectedButton;
         [SerializeField] private PlayableDirector director;
         [SerializeField] private Image shadowImage;
-        void Awake()
-        {
-            director = GetComponent<PlayableDirector>();
-        }
-        public void OnBegin()
-        {
-            EventSystem.current.SetSelectedGameObject(skipText);
-        }
 
         public void OnEnd()
         {

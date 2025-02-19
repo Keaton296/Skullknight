@@ -15,8 +15,8 @@ TagManager:
   - Player
   - Enemies
   - Walls
-  - 
-  - 
+  - Projectiles
+  - Collectibles
   - 
   - 
   - 

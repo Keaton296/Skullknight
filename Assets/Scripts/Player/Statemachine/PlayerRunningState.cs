@@ -13,7 +13,7 @@ namespace Player.Statemachine
 
         public override void EnterState()
         {
-            controller.animator.Play("Run");
+            controller.Animator.Play("Run");
             controller.ActiveBoxCollider2D.sharedMaterial = controller.normalPhysicMaterial;
             controller.MoveOnGround(controller.playerInput.actions["Horizontal"].ReadValue<float>());
         }
@@ -52,7 +52,7 @@ namespace Player.Statemachine
             else
             {
                 //if(!controller.animator.GetCurrentAnimatorStateInfo(0).IsName("Run")) controller.animator.SetTrigger("run");
-                controller.animator.SetFloat("runAnimSpeed", velocityProgress * controller.maxRunningAnimSpeed);
+                controller.Animator.SetFloat("runAnimSpeed", velocityProgress * controller.maxRunningAnimSpeed);
             }
         
         }

@@ -75,7 +75,7 @@ namespace Player.Statemachine
 
         IEnumerator AttackCoroutine()
         {
-            controller.animator.Play(AtkAnimationName);
+            controller.Animator.Play(AtkAnimationName);
             yield return new WaitForSeconds(atkDuration);
             canMove = true;
             canCombo = true;
@@ -86,7 +86,6 @@ namespace Player.Statemachine
         {
             controller.StopCoroutine(attackRoutine);
             attackRoutine = null;
-            controller.currentActionCoroutine = null;
         }
     }
 }

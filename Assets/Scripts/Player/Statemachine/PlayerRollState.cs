@@ -10,18 +10,18 @@ namespace Player.Statemachine
         {
             this.controller = stateManager;
         }
+        public override void EnterState()
+        {
+            controller.SetDamageImmunity(true);
+            controller.Roll();
+            controller.Animator.Play("Roll");
+        }
     
         public override void ExitState()
         {
-         
+            controller.SetDamageImmunity(false);
         }
 
-        public override void EnterState()
-        {
-            controller.Roll();
-            controller.animator.Play("Roll");
-            //controller.StartCoroutine(RollCooldown()); to prevent unlimited rolls
-        }
 
         public override void StateUpdate()
         {
@@ -56,13 +56,8 @@ namespace Player.Statemachine
 
         private bool IsRollingAnimationDone()
         {
-            AnimatorStateInfo stateInfo = controller.animator.GetCurrentAnimatorStateInfo(0);
+            AnimatorStateInfo stateInfo = controller.Animator.GetCurrentAnimatorStateInfo(0);
             return stateInfo.IsName("Roll") && stateInfo.normalizedTime > 0.99f;
-        }
-        public IEnumerator RollCooldown()
-        {
-            yield return new WaitForSeconds(controller.rollingCooldown);
-            //controller.canRoll = true;
         }
     }
 }

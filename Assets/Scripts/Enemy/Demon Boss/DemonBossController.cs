@@ -2,12 +2,13 @@ using UnityEngine;
 using DG.Tweening;
 using Skullknight.Core;
 using Skullknight.Enemy.Demon_Boss;
+using Skullknight.Entity;
 using Skullknight.Player.Statemachine;
 using Skullknight.State;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 
-public class DemonBossController : StateManager<EDemonBossState>,IDamageable
+public class DemonBossController : EntityController<EDemonBossState,DemonBossController>
 {
     public enum DemonBossPhase
     {
@@ -17,9 +18,6 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
 
     private DemonBossPhase _phase;
     public DemonBossPhase Phase => _phase;
-    
-    public SpriteRenderer spriteRenderer;
-    public Animator animator;
 
     [SerializeField] private Animator fireAnimator;
     [SerializeField] private SpriteRenderer fireSpriteRenderer;
@@ -39,49 +37,42 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
     public Transform mouthPoint;
 
     [SerializeField] private float movementDuration = 1f;
-    
-    [SerializeField] int health = 300;
-    [SerializeField] private int maxHealth = 300;
-    public int Health {
-        get {
-            return health;
-        }
-        set {
-            if (value > health) { health = Mathf.Clamp(health, 0, maxHealth); }
-            else if (value < health)
-            {
-                if (value <= 0)
-                {
-                    if (Phase == DemonBossPhase.FirstPhase)
-                    {
-                        health = maxHealth;
-                        _phase = DemonBossPhase.SecondPhase;
-                        GameManager.Instance.ToCutscene(2);
-                        return;
-                    }
-                    else if (Phase == DemonBossPhase.SecondPhase)
-                    {
-                        GameManager.Instance.ToCutscene(3);
-                    }
-                }
-                health = value;
-                OnHealthChanged?.Invoke(value);
-                
-                spriteRenderer.material.SetFloat("_HitFXPercent", 1f);
-                if( takingDamageTween != null)
-                {
-                    takingDamageTween.Kill();
-                    takingDamageTween = null;
-                }
-                takingDamageTween = DOTween.To(() => spriteRenderer.material.GetFloat("_HitFXPercent"), x => spriteRenderer.material.SetFloat("_HitFXPercent",x),0f,.3f);
-            }
-        }
-    }
 
-    public int MaxHealth => maxHealth;
-    public UnityEvent<int> OnHealthChanged => onHealthChanged;
-    private UnityEvent<int> onHealthChanged;
-    protected override void Awake()
+    public override bool TakeDamage(int amount)
+    {
+        if(isDamageable)
+        {
+            spriteRenderer.material.SetFloat("_HitFXPercent", 1f);
+            if (takingDamageTween != null)
+            {
+                takingDamageTween.Kill();
+                takingDamageTween = null;
+            }
+
+            takingDamageTween = DOTween.To(() => spriteRenderer.material.GetFloat("_HitFXPercent"),
+                x => spriteRenderer.material.SetFloat("_HitFXPercent", x), 0f, .3f);
+            health = Mathf.Clamp(health - amount, 0, maxHealth);
+            OnHealthChanged?.Invoke(health);
+            if (health <= 0)
+            {
+                if (Phase == DemonBossPhase.FirstPhase)
+                {
+                    health = maxHealth;
+                    _phase = DemonBossPhase.SecondPhase;
+                    GameManager.Instance.ToCutscene(2);
+                }
+                else if (Phase == DemonBossPhase.SecondPhase)
+                {
+                    GameManager.Instance.ToCutscene(3);
+                }
+            }
+
+            return true;
+        }
+
+        return false;
+    }
+    private void Awake()
     {
         onHealthChanged = new UnityEvent<int>();
         states.Add(EDemonBossState.Idle,new DemonIdleState(this));
@@ -97,29 +88,6 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
         canTurn = false;
         laserShooter.ShootTarget(PlayerController.Instance.transform);
     }
-    protected override void Start()
-    {
-        
-    }
-    public override void ChangeState(EDemonBossState newState) 
-    {
-        if (states.ContainsKey(newState))
-        {
-            currentState?.UnsubscribeEvents();
-            DemonBossState dState = currentState as DemonBossState;
-            dState?.KillCoroutines();
-            currentState?.ExitState();
-            currentState = states[newState];
-            stateEnum = newState;
-            OnStateChange?.Invoke(stateEnum);
-            currentState.EnterState();
-            currentState.SubscribeEvents();
-        }
-        else
-        {
-            Debug.LogError(string.Format("State '{0}' not found", newState));
-        }
-    }
     private void OnGameStateChanged(GameManager.EGameManagerState newState)
     {
         if (newState == GameManager.EGameManagerState.Playing && GameManager.Instance.CurrentBoss == gameObject)
@@ -132,19 +100,10 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
             this.enabled = false;
         }
     }
-
-    protected override void OnEnable()
-    {
-        base.OnEnable();
-    }
-
     protected override void OnDisable()
     {
-        Debug.Log("easdasd");
         base.OnDisable();
-        animator.Play("Idle");
-        DemonBossState state = currentState as DemonBossState;
-        state.KillCoroutines();
+        animator?.Play("Idle");
     }
     public void MoveToTransform(Vector3 ToPoint, float duration)
     {
@@ -155,7 +114,6 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
         }
         movementTween = transform.DOMove(ToPoint, duration, false);
     }
-
     public void MoveToIdlePosition()
     {
         MoveToTransform(IdlingPoint.position, 1f);
@@ -185,18 +143,14 @@ public class DemonBossController : StateManager<EDemonBossState>,IDamageable
     {
         if (PlayerController.Instance?.transform.position.x - transform.position.x > 0)
         {
-            SetFlip(true);
+            FlipX(true);
         }
         else
         {
-            SetFlip(false);
+            FlipX(false);
         }
     }
-    /// <summary>
-    /// Looks to left unflipped.
-    /// </summary>
-    /// <param name="flip"></param>
-    public void SetFlip(bool value)
+    public override void FlipX(bool value)
     {
         spriteRenderer.flipX = value;
         FireBreathTransform.localPosition = new Vector3(Mathf.Abs(FireBreathTransform.localPosition.x) * (value ? 1 : -1), FireBreathTransform.localPosition.y,0);

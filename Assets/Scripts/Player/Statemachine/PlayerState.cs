@@ -5,26 +5,9 @@ using UnityEngine;
 
 namespace Player.Statemachine
 {
-    public abstract class PlayerState : BaseState<EPlayerState>
+    public abstract class PlayerState : EntityState<EPlayerState, PlayerController>
     {
-        protected PlayerController controller;
-        public List<Coroutine> coroutines;
-        public PlayerState(PlayerController playerController)
-        {
-            controller = playerController;
-            coroutines = new List<Coroutine>();
-        }
-        public void KillCoroutines()
-        {
-            foreach (var coroutine in coroutines)
-            {
-                if (coroutine != null)
-                {
-                    controller.StopCoroutine(coroutine);
-                }
-            }
-            coroutines.Clear();
-        }
+        protected PlayerState(PlayerController controller) : base(controller){}
     }
     public enum EPlayerState
     {

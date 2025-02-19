@@ -11,12 +11,18 @@ namespace Skullknight
         private readonly float maxWaitingLength = 5f;
         private readonly float travelLength = 9f;
         private int _currentPositionIndex = 0;
-        private SpriteRenderer _spriteRenderer;
+        [SerializeField] private SpriteRenderer _spriteRenderer;
+        private Tween movementTween;
         
         void Start()
         {
-            _spriteRenderer = GetComponent<SpriteRenderer>();
             StartCoroutine(Animation());
+        }
+
+        public void Terminate()
+        {
+            movementTween.Kill();
+            StopAllCoroutines();
         }
 
         IEnumerator Animation()
@@ -33,8 +39,8 @@ namespace Skullknight
                     _spriteRenderer.flipX = false;
                     _currentPositionIndex = 1;
                 }
-                var anim = transform.DOMove(points[_currentPositionIndex].position, travelLength).SetEase(Ease.Linear);
-                yield return new WaitUntil(() => !anim.IsActive());
+                movementTween = transform.DOMove(points[_currentPositionIndex].position, travelLength).SetEase(Ease.Linear);
+                yield return new WaitUntil(() => !movementTween.IsActive());
                 yield return new WaitForSeconds(Random.Range(3f, maxWaitingLength));
 
             }

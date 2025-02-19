@@ -8,7 +8,7 @@ namespace Player.Statemachine
         public PlayerJumpState(PlayerController stateManager) : base(stateManager){}
         public override void EnterState()
         {
-            controller.animator.Play("Jump");
+            controller.Animator.Play("Jump");
             controller.Jump();
         }
         public override void ExitState()

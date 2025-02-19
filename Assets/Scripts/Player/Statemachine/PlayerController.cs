@@ -2,6 +2,7 @@ using System.Collections;
 using Cinemachine;
 using Player.Statemachine;
 using Skullknight.Core;
+using Skullknight.Entity;
 using Skullknight.State;
 using UnityEngine;
 using UnityEngine.Events;
@@ -10,24 +11,15 @@ using UnityEngine.Serialization;
 
 namespace Skullknight.Player.Statemachine
 {
-    public class PlayerController : StateManager<EPlayerState>,IDamageable
+    public class PlayerController : EntityController<EPlayerState,PlayerController>
     {
-        public static PlayerController Instance;
-        
-        //Component References
+        public static PlayerController Instance; //Singleton
+  
         public Rigidbody2D rb;
-        public Animator animator;
-        public SpriteRenderer spriteRenderer;
         [FormerlySerializedAs("inputSystem")] public PlayerInput playerInput;
         [FormerlySerializedAs("attackImpulse")] [SerializeField] public CinemachineImpulseSource recoilImpulse;
         [SerializeField] public CinemachineImpulseSource bumpImpulse;
-        public int Health {
-            get => throw new System.NotImplementedException();
-            set => throw new System.NotImplementedException(); 
-        }
-
-        public int MaxHealth { get; }
-        public UnityEvent<int> OnHealthChanged { get; set; }
+        [SerializeField] public AudioPlayer landingAudioPlayer;
 
         public BoxCollider2D ActiveBoxCollider2D 
         {
@@ -124,13 +116,12 @@ namespace Skullknight.Player.Statemachine
     
 
         //COROUTINES
-        public Coroutine currentActionCoroutine;
         public float lastJumpTime; 
         public Coroutine groundSlideDeathCoroutine;
         public Coroutine rollCoolDownCoroutine;
         public Coroutine wallSlideCheckDeathCoroutine;
         
-        protected override void Awake()
+        protected void Awake()
         {
             Instance = this;
             
@@ -143,36 +134,14 @@ namespace Skullknight.Player.Statemachine
             states.Add(EPlayerState.Falling, new PlayerFallingState(this));
             states.Add(EPlayerState.Hanging, new PlayerHangingState(this));
             states.Add(EPlayerState.Climbing, new PlayerClimbingState(this));
-            states.Add(EPlayerState.Hurt, new PlayerDamagedState(this));
+            states.Add(EPlayerState.Hurt, new PlayerHurtState(this));
             states.Add(EPlayerState.CrouchAttack, new PlayerCrouchingAttackState(this));
             states.Add(EPlayerState.AttackOne, new PlayerAttackingState(this,"atk0",.33f,0.33f,EPlayerState.AttackTwo));
             states.Add(EPlayerState.AttackTwo, new PlayerAttackingState(this,"atk1",.33f,0.33f,null));
             
             ChangeState(EPlayerState.Idle);
             GameManager.Instance.OnStateChange.AddListener(OnGameStateChanged);
-        }
-        public override void ChangeState(EPlayerState newState) 
-        {
-            if (states.ContainsKey(newState))
-            {
-                currentState?.UnsubscribeEvents();
-                PlayerState dState = currentState as PlayerState;
-                dState?.KillCoroutines();
-                currentState?.ExitState();
-                currentState = states[newState];
-                stateEnum = newState;
-                OnStateChange?.Invoke(stateEnum);
-                currentState.EnterState();
-                currentState.SubscribeEvents();
-            }
-            else
-            {
-                Debug.LogError(string.Format("State '{0}' not found", newState));
-            }
-        }
-        protected override void Start()
-        {
-            
+            SetDamageImmunity(false);
         }
 
         protected override void Update()
@@ -184,6 +153,11 @@ namespace Skullknight.Player.Statemachine
             }
         }
 
+        public void SetDamageImmunity(bool isImmune)
+        {
+            isDamageable = !isImmune;
+        }
+
         protected override void OnEnable()
         {
             base.OnEnable();
@@ -192,7 +166,7 @@ namespace Skullknight.Player.Statemachine
 
         void OnDisable()
         {
-            base.OnDisable();
+            if(playerInput != null) base.OnDisable();
             animator.Play("Idle");
         }
         public void Roll()
@@ -268,6 +242,17 @@ namespace Skullknight.Player.Statemachine
             rb.AddForce(Vector2.down * (rb.velocity.y * m_jumpCutPercentage),ForceMode2D.Impulse);
         }
 
+        public override bool TakeDamage(int amount)
+        {
+            if (isDamageable)
+            {
+                health = Mathf.Clamp(health - amount, 0, maxHealth);
+                onHealthChanged?.Invoke(health);
+                ChangeState(EPlayerState.Hurt);
+                return true;
+            }
+            return false;
+        }
         public void SwordAttack()
         {
             var hits = Physics2D.BoxCastAll(atk0Collider.bounds.center, atk0Collider.bounds.size, 0, Vector3.up, .1f, attackMask);
@@ -278,7 +263,7 @@ namespace Skullknight.Player.Statemachine
                 if (damageablecomp != null)
                 {
                     hitCount++;
-                    damageablecomp.Health -= 10;
+                    damageablecomp.TakeDamage(10);
                 }
             }
             if(hitCount > 0 ) recoilImpulse.GenerateImpulse();

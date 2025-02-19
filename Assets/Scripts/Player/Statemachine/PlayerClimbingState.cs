@@ -27,7 +27,7 @@ namespace Player.Statemachine
 
         public override void EnterState()
         {
-            controller.animator.Play("Climb");
+            controller.Animator.Play("Climb");
         }
 
         public override void ExitState()
@@ -45,7 +45,7 @@ namespace Player.Statemachine
 
         private bool IsClimbingAnimationDone()
         {
-            AnimatorStateInfo state = controller.animator.GetCurrentAnimatorStateInfo(0);
+            AnimatorStateInfo state = controller.Animator.GetCurrentAnimatorStateInfo(0);
             return state.IsName("Climb") && state.normalizedTime >= 0.95f;
         }
     }

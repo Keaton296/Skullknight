@@ -1,10 +1,11 @@
 using System.Collections;
 using System.Collections.Generic;
+using Skullknight.State;
 using UnityEngine;
 
 namespace Skullknight.Enemy.Demon_Boss
 {
-    public class DemonBossLaserAttack : DemonBossState
+    public class DemonBossLaserAttack : EntityState<EDemonBossState,DemonBossController>
     {
         public DemonBossLaserAttack(DemonBossController _controller) : base(_controller)
         { }
@@ -12,9 +13,9 @@ namespace Skullknight.Enemy.Demon_Boss
         private IEnumerator AttackingRoutine()
         {
             controller.canTurn = true;
-            controller.animator.Play("LaserAttack");
+            controller.Animator.Play("LaserAttack");
             yield return null;
-            yield return new WaitUntil(() => controller.animator.GetCurrentAnimatorStateInfo(0).normalizedTime > .95f);
+            yield return new WaitUntil(() => controller.Animator.GetCurrentAnimatorStateInfo(0).normalizedTime > .95f);
             controller.ChangeState(EDemonBossState.Idle);
         }
         public override void EnterState()

@@ -11,7 +11,7 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
-public class GameManager : StateManager<GameManager.EGameManagerState>
+public class GameManager : EntityStateManager<GameManager.EGameManagerState,EntityState<GameManager.EGameManagerState,GameManager>,GameManager>
 {
     public enum EGameManagerState
     {
@@ -22,7 +22,29 @@ public class GameManager : StateManager<GameManager.EGameManagerState>
     }
     public static GameManager Instance;
     [SerializeField] public PlayerInput playerInput;
-    
+
+    [SerializeField] public GameObject coinPrefab;
+    [SerializeField] private int levelCoins = 0;
+    public UnityEvent<int> OnLevelCoinsChanged = new UnityEvent<int>();
+    public int LevelCoins
+    {
+        get
+        {
+            return levelCoins;
+        }
+        private set
+        {
+            levelCoins = value;
+            if(levelCoins < 0) levelCoins = 0;
+            OnLevelCoinsChanged?.Invoke(levelCoins);
+        }
+    }
+
+    public void SetLevelCoins(int levelCoins)
+    {
+        LevelCoins = levelCoins;
+    }
+
     [SerializeField] private CutsceneManager m_cutsceneManager; //cutsceneManager 
     [SerializeField] private CheckpointManager m_checkpointManager; //checkpointManager
     [SerializeField] public bool OnBossFight => currentBoss!=null;
@@ -44,17 +66,17 @@ public class GameManager : StateManager<GameManager.EGameManagerState>
     public CutsceneManager CutsceneManager => m_cutsceneManager;
     public PlayerInput PlayerInput => playerInput;
     public CheckpointManager CheckpointManager => m_checkpointManager;
-    protected override void Awake()
+    protected void Awake()
     {
         Instance = this;
-        states.Add(EGameManagerState.Playing,new PlayingGameState());
-        states.Add(EGameManagerState.EscapeMenu,new EscapeMenuGameState());
+        states.Add(EGameManagerState.Playing,new PlayingGameState(this));
+        states.Add(EGameManagerState.EscapeMenu,new EscapeMenuGameState(this));
         states.Add(EGameManagerState.Gameover,new GameOverGameState(this));
-        m_cutsceneState = new CutsceneGameState(0,m_cutsceneManager);
+        m_cutsceneState = new CutsceneGameState(0,m_cutsceneManager,this);
         states.Add(EGameManagerState.Cutscene, m_cutsceneState);
     }
 
-    protected override void Start()
+    protected void Start()
     {
         CutsceneInstance first = m_cutsceneManager.GetFirstCutscene();
         if (first != null && first.playOnStart)
@@ -146,28 +168,23 @@ public class GameManager : StateManager<GameManager.EGameManagerState>
     }
     
 }
-internal class CutsceneGameState : BaseState<GameManager.EGameManagerState>
+internal class CutsceneGameState : EntityState<GameManager.EGameManagerState,GameManager>
 {
     public int cutsceneIndex;
     private bool pressedSkip = false;
     private CutsceneManager cutsceneManager;
     public bool isStoppedByEscapeMenu = false;
-    public CutsceneGameState(int _cutsceneIndex, CutsceneManager manager)
+    
+    public CutsceneGameState(int _cutsceneIndex, CutsceneManager manager, GameManager _controller) : base(_controller)
     {
         cutsceneIndex = _cutsceneIndex;
         cutsceneManager = manager;
     }
 
     public override void StateUpdate()
-    { 
-        
-    }
-
+    { }
     public override void StateFixedUpdate()
-    {
-        
-    }
-
+    { }
     public override void SubscribeEvents()
     {
         GameManager.Instance.playerInput.actions["Menu"].performed += GameManager.Instance.OnEscapeMenuToggle;
@@ -231,13 +248,14 @@ internal class CutsceneGameState : BaseState<GameManager.EGameManagerState>
     }
 
     public override void ExitState()
-    {
-        
-    }
+    { }
 }
 
-internal class PlayingGameState : BaseState<GameManager.EGameManagerState>
+internal class PlayingGameState : EntityState<GameManager.EGameManagerState,GameManager>
 {
+    public PlayingGameState(GameManager _controller) : base(_controller)
+    { }
+
     public override void EnterState()
     {
         
@@ -269,19 +287,17 @@ internal class PlayingGameState : BaseState<GameManager.EGameManagerState>
     }
 }
 
-internal class GameOverGameState : BaseState<GameManager.EGameManagerState>
+internal class GameOverGameState : EntityState<GameManager.EGameManagerState,GameManager>
 {
-    private GameManager gameManager;
     //disable player controls
     //start fading out animation
     //load the last checkpoint
-    public GameOverGameState(GameManager manager)
-    {
-        gameManager = manager;
-    }
+    public GameOverGameState(GameManager _controller) : base(_controller)
+    { }
+
     public override void EnterState()
     {
-        gameManager.StartCoroutine(GameOverAnimation());
+        controller.StartCoroutine(GameOverAnimation());
     }
 
     IEnumerator GameOverAnimation()
@@ -291,7 +307,7 @@ internal class GameOverGameState : BaseState<GameManager.EGameManagerState>
         yield return null;
         yield return new WaitUntil(() =>
             !UITransitionManager.Instance.blackoutAnimator.GetCurrentAnimatorStateInfo(0).IsName("In")); //stays here
-        gameManager.RestartLevel();
+        controller.RestartLevel();
     }
     public override void ExitState()
     {
@@ -318,9 +334,15 @@ internal class GameOverGameState : BaseState<GameManager.EGameManagerState>
         
     }
 }
-internal class EscapeMenuGameState : BaseState<GameManager.EGameManagerState>
+internal class EscapeMenuGameState : EntityState<GameManager.EGameManagerState,GameManager>
 {
-    public bool IsStoppedCutscene = false; 
+    public bool IsStoppedCutscene = false;
+
+    public EscapeMenuGameState(GameManager _controller, bool ısStoppedCutscene = false) : base(_controller)
+    {
+        IsStoppedCutscene = ısStoppedCutscene;
+    }
+
     public override void StateUpdate()
     {
         

@@ -1,10 +1,5 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
 using Skullknight.Core;
-using Skullknight.Player.Statemachine;
 using UnityEngine;
-using static UnityEditor.Experimental.GraphView.GraphView;
 
 public class Fireball : MonoBehaviour
 {
@@ -35,7 +30,7 @@ public class Fireball : MonoBehaviour
         if(hitMask == (hitMask | (1 << target.gameObject.layer)))
         {
             var damageable = target.transform.GetComponent<IDamageable>();
-            if (damageable != null)
+            if (damageable != null && damageable.IsDamageable)
             {  //destroy by entity hit
                 if (damageable.TakeDamage(damage))
                 {

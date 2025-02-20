@@ -18,6 +18,10 @@ namespace Skullknight
         [SerializeField] private Animator shadowAnimator; 
         [SerializeField] private BossMainScreenAnimator bossAnimator;
 
+        void Awake()
+        {
+            Time.timeScale = 1;
+        }
         public void OnPlayPressed()
         {
             bossAnimator.Terminate();

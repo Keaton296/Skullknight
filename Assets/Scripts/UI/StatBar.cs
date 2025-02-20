@@ -1,8 +1,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using DG.Tweening;
-using System.Collections;
-using UnityEditor.ShaderGraph.Internal;
 
 public class StatBar : MonoBehaviour
 {

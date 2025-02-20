@@ -101,7 +101,8 @@ public class GameManager : EntityStateManager<GameManager.EGameManagerState,Enti
 
     protected override void OnDisable()
     {
-        base.OnDisable();
+        if(playerInput != null) currentState?.UnsubscribeEvents();
+        currentState?.KillCoroutines();
         if (playerInput != null)
         {
             playerInput.actions["Menu"].performed -= OnEscapeMenuToggle;
@@ -144,6 +145,7 @@ public class GameManager : EntityStateManager<GameManager.EGameManagerState,Enti
             Time.timeScale = 0;
             ChangeState(EGameManagerState.EscapeMenu);
         }
+        Debug.Log(stateEnum);
     }
 
     public void GameOverTransition()
@@ -278,12 +280,14 @@ internal class PlayingGameState : EntityState<GameManager.EGameManagerState,Game
 
     public override void SubscribeEvents()
     {
-        
+        GameManager.Instance.playerInput.actions["Menu"].performed += GameManager.Instance.OnEscapeMenuToggle;
+        GameManager.Instance.playerInput.actions["MenuUI"].performed += GameManager.Instance.OnEscapeMenuToggle;
     }
 
     public override void UnsubscribeEvents()
     {
-        
+        GameManager.Instance.playerInput.actions["Menu"].performed -= GameManager.Instance.OnEscapeMenuToggle;
+        GameManager.Instance.playerInput.actions["MenuUI"].performed -= GameManager.Instance.OnEscapeMenuToggle;
     }
 }
 

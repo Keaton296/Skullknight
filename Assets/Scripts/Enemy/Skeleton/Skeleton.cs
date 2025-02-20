@@ -59,6 +59,12 @@ namespace Skullknight
             states.Add(ESkeletonState.Attacking, new SkeletonAttackingState(this));
         }
 
+        public void LookPlayer()
+        {
+            if ((transform.position.x - PlayerController.Instance.rb.position.x) > 0) FlipX(true);
+            else FlipX(false);
+        }
+
         public override bool TakeDamage(int amount)
         {
             if (isDamageable)
@@ -91,13 +97,13 @@ namespace Skullknight
 
         public void AttackPrecise()
         {
-            RaycastHit2D[] hits = new RaycastHit2D[1];
-            rb.Cast(spriteRenderer.flipX ? -Vector2.right : Vector2.right, hits );
-            if (hits[0].collider == null) return;
-            var player = hits[0].collider.GetComponent<IDamageable>();
-            if (player != null)
+            RaycastHit2D[] hits = new RaycastHit2D[10];
+            rb.Cast(Vector2.zero, hits);
+            foreach (var hit in hits)
             {
-                player.TakeDamage(1);   
+                if (hit.collider == null || (atkLayer & (1 << hit.collider.gameObject.layer)) == 0) continue;
+                var hittable = hit.collider.GetComponent<IDamageable>();
+                if(hittable != null) hittable.TakeDamage(1);
             }
         }
 

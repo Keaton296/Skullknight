@@ -14,7 +14,6 @@ namespace Skullknight.Player.Statemachine
     public class PlayerController : EntityController<EPlayerState,PlayerController>
     {
         public static PlayerController Instance; //Singleton
-  
         public Rigidbody2D rb;
         [FormerlySerializedAs("inputSystem")] public PlayerInput playerInput;
         [FormerlySerializedAs("attackImpulse")] [SerializeField] public CinemachineImpulseSource recoilImpulse;
@@ -124,7 +123,8 @@ namespace Skullknight.Player.Statemachine
         protected void Awake()
         {
             Instance = this;
-            
+            onHealthChanged = new UnityEvent<int>();
+            health = 6;
             states.Add(EPlayerState.Idle, new PlayerIdleState(this));
             states.Add(EPlayerState.Running, new PlayerRunningState(this));
             states.Add(EPlayerState.Crouching, new PlayerCrouchingState(this));

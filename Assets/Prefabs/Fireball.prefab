@@ -110,10 +110,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   velocity: 15
+  damage: 10
   rb: {fileID: 9123212815932190930}
   hitMask:
     serializedVersion: 2
-    m_Bits: 136
+    m_Bits: 648
 --- !u!1 &5746483514209983513
 GameObject:
   m_ObjectHideFlags: 0

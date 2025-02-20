@@ -75,6 +75,8 @@ public class DemonBossController : EntityController<EDemonBossState,DemonBossCon
     private void Awake()
     {
         onHealthChanged = new UnityEvent<int>();
+        health = 200;
+        maxHealth = 200;
         states.Add(EDemonBossState.Idle,new DemonIdleState(this));
         states.Add(EDemonBossState.BreathAttack,new DemonBreathAttackState(this));
         states.Add(EDemonBossState.FireballAttack,new DemonBossFireballAttackState(this));
@@ -127,7 +129,8 @@ public class DemonBossController : EntityController<EDemonBossState,DemonBossCon
 
     public void ShootBreath()
     {
-        fireAnimator.Play("firebreath");
+        if(Phase == DemonBossPhase.FirstPhase) fireAnimator.Play("firebreath");
+        else fireAnimator.Play("bluefirebreath");
     }
     public void ShootFireball(Transform target)
     {

@@ -7,6 +7,7 @@ public class Fireball : MonoBehaviour
     public int damage;
     [SerializeField] Rigidbody2D rb;
     public LayerMask hitMask;
+    public LayerMask wallMask;
     
     public void SetFireballTarget(Transform target)
     {
@@ -27,7 +28,7 @@ public class Fireball : MonoBehaviour
 
     private void TryHittingTarget(Collider2D target)
     {
-        if(hitMask == (hitMask | (1 << target.gameObject.layer)))
+        if(hitMask == (hitMask | (1 << target.gameObject.layer)) && !target.isTrigger)
         {
             var damageable = target.transform.GetComponent<IDamageable>();
             if (damageable != null && damageable.IsDamageable)
@@ -37,10 +38,10 @@ public class Fireball : MonoBehaviour
                     Destroy(gameObject);
                 }
             }
-            else
-            { //destory by env collision
-                Destroy(gameObject);
-            }
+        }
+        else if(wallMask == (wallMask | (1 << target.gameObject.layer)))
+        {
+            Destroy(gameObject);
         }
     }
 }

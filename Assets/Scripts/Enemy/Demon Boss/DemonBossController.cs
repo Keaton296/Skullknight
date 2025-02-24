@@ -75,8 +75,8 @@ public class DemonBossController : EntityController<EDemonBossState,DemonBossCon
     private void Awake()
     {
         onHealthChanged = new UnityEvent<int>();
-        health = 200;
-        maxHealth = 200;
+        health = 400;
+        maxHealth = 400;
         states.Add(EDemonBossState.Idle,new DemonIdleState(this));
         states.Add(EDemonBossState.BreathAttack,new DemonBreathAttackState(this));
         states.Add(EDemonBossState.FireballAttack,new DemonBossFireballAttackState(this));

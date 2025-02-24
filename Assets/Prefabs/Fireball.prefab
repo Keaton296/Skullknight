@@ -114,7 +114,10 @@ MonoBehaviour:
   rb: {fileID: 9123212815932190930}
   hitMask:
     serializedVersion: 2
-    m_Bits: 648
+    m_Bits: 128
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 520
 --- !u!1 &5746483514209983513
 GameObject:
   m_ObjectHideFlags: 0

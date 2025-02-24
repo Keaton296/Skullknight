@@ -167,7 +167,8 @@ namespace Skullknight.Player.Statemachine
         void OnDisable()
         {
             if(playerInput != null) base.OnDisable();
-            animator.Play("Idle");
+            isDamageable = true;
+            ChangeState(EPlayerState.Idle);
         }
         public void Roll()
         {
@@ -244,6 +245,10 @@ namespace Skullknight.Player.Statemachine
 
         public override bool TakeDamage(int amount)
         {
+            if (stateEnum == EPlayerState.Hanging || stateEnum == EPlayerState.Climbing)
+            {
+                Unhang();
+            }
             if (isDamageable)
             {
                 health = Mathf.Clamp(health - amount, 0, maxHealth);

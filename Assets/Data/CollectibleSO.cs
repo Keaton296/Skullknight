@@ -1,6 +1,5 @@
 using System.Collections;
 using System.Collections.Generic;
-using UnityEditor.Animations;
 using UnityEngine;
 
 namespace Skullknight
@@ -11,8 +10,6 @@ namespace Skullknight
         [SerializeField] protected float spawnForce = 2f;
         [SerializeField] protected int collectibleValue = 1;
         [SerializeField] protected LayerMask collectableLayer;
-
-        [SerializeField] protected AnimatorController animatorControllerAsset; 
         
         [SerializeField] protected AudioClip collectingSound;
         [SerializeField] protected AudioClip spawnSound;
@@ -20,8 +17,6 @@ namespace Skullknight
         
         public float SpawnForce => spawnForce;  
         public LayerMask CollectableLayer => collectableLayer;
-        
-        public AnimatorController AnimatorControllerAsset => animatorControllerAsset;
         
         public AudioClip CollectingSound => collectingSound;
         public AudioClip SpawnSound => spawnSound;

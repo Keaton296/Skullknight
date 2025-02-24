@@ -290,6 +290,17 @@ public partial class @PlayerInputActions: IInputActionCollection2, IDisposable
                 },
                 {
                     ""name"": """",
+                    ""id"": ""1faae0eb-fdaf-4821-9cfa-2ac21eca4537"",
+                    ""path"": ""<DualShockGamepad>/buttonEast"",
+                    ""interactions"": """",
+                    ""processors"": """",
+                    ""groups"": ""Controller"",
+                    ""action"": ""Roll"",
+                    ""isComposite"": false,
+                    ""isPartOfComposite"": false
+                },
+                {
+                    ""name"": """",
                     ""id"": ""76ccb91f-686a-43cf-859e-69b99fae11fc"",
                     ""path"": ""<Keyboard>/escape"",
                     ""interactions"": """",

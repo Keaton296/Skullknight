@@ -1,5 +1,5 @@
 using UnityEditor;
-
+#if UNITY_EDITOR
 namespace Skullknight
 {
     [CustomEditor(typeof(ButtonUI))]
@@ -7,3 +7,4 @@ namespace Skullknight
     {
     }
 }
+#endif

@@ -18,6 +18,7 @@ namespace Skullknight
         [SerializeField] private Collider2D atkCollider;
         [SerializeField] private LayerMask atkLayer;
         [SerializeField] private Rigidbody2D rb;
+        [SerializeField] private AudioPlayer hitPlayer;
         public SplineContainer splineContainer;
         public int currentWaypointIndex = -1;
         public float evaluationRate;
@@ -69,6 +70,7 @@ namespace Skullknight
         {
             if (isDamageable)
             {
+                hitPlayer.PlayRandom();
                 health = Mathf.Clamp(health - amount, 0, maxHealth);
                 onHealthChanged?.Invoke(health);
                 if (health == 0) ChangeState(ESkeletonState.Death);

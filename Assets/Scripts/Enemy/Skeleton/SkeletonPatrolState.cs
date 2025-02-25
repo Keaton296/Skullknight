@@ -1,6 +1,6 @@
 using System.Collections;
 using Cinemachine;
-using Skullknight.State;
+using xKhano.StateMachines.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Splines;

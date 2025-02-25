@@ -1,12 +1,12 @@
 using System;
 using Skullknight.Core;
-using Skullknight.State;
 using UnityEngine;
 using UnityEngine.Events;
+using xKhano.StateMachines.Entities;
 
 namespace Skullknight.Entity
 {
-    public abstract class EntityController<EState, Controller> : EntityStateManager<EState,EntityState<EState,Controller>,Controller>, IDamageable where EState : Enum where Controller : MonoBehaviour
+    public abstract class EntityController<EState, Controller> : xKhano.StateMachines.Entities.EntityStateManager<EState, xKhano.StateMachines.Entities.EntityState<EState,Controller>,Controller>, IDamageable where EState : Enum where Controller : MonoBehaviour
     {
         [SerializeField] protected Animator animator;
         [SerializeField] protected SpriteRenderer spriteRenderer;

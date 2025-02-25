@@ -1,6 +1,5 @@
 using Player.Statemachine;
 using Skullknight.Player.Statemachine;
-using Skullknight.State;
 using UnityEngine;
 
 namespace Player.VFX

@@ -1,6 +1,5 @@
 using System.Collections;
-using Skullknight.Entity;
-using Skullknight.State;
+using xKhano.StateMachines.Entities;
 using UnityEngine;
 
 namespace Skullknight.Enemy.Skeleton

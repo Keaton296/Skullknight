@@ -1,6 +1,5 @@
 using System.Collections;
-using System.Collections.Generic;
-using Skullknight.State;
+using xKhano.StateMachines.Entities;
 using UnityEngine;
 
 namespace Skullknight.Enemy.Demon_Boss

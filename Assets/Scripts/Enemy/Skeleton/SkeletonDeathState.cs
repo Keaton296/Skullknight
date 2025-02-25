@@ -2,7 +2,7 @@ using System.Collections;
 using Cinemachine;
 using UnityEngine;
 using DG.Tweening;
-using Skullknight.State;
+using xKhano.StateMachines.Entities;
 
 namespace Skullknight.Enemy.Skeleton
 {

@@ -3,7 +3,6 @@ using Cinemachine;
 using Player.Statemachine;
 using Skullknight.Core;
 using Skullknight.Entity;
-using Skullknight.State;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;

@@ -4,10 +4,7 @@ using Skullknight.Core;
 using Skullknight.Enemy.Skeleton;
 using Skullknight.Entity;
 using Skullknight.Player.Statemachine;
-using Skullknight.State;
 using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.Serialization;
 using UnityEngine.Splines;
 
 namespace Skullknight

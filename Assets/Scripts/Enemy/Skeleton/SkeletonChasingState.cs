@@ -1,5 +1,5 @@
 using Skullknight.Player.Statemachine;
-using Skullknight.State;
+using xKhano.StateMachines.Entities;
 using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.Splines;

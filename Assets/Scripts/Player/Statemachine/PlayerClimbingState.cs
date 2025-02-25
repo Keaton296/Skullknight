@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using Skullknight.Player.Statemachine;
-using Skullknight.State;
 using UnityEngine;
 
 namespace Player.Statemachine

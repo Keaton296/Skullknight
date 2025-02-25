@@ -2,14 +2,11 @@ using System;
 using System.Collections;
 using UnityEngine;
 using Skullknight;
-using Skullknight.Player.Statemachine;
-using Skullknight.State;
+using xKhano.StateMachines.Entities;
 using Skullknight.Core;
-using Unity.VisualScripting;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
-using UnityEngine.Serialization;
 
 public class GameManager : EntityStateManager<GameManager.EGameManagerState,EntityState<GameManager.EGameManagerState,GameManager>,GameManager>
 {

@@ -4,7 +4,7 @@ using Skullknight.Core;
 using Skullknight.Enemy.Demon_Boss;
 using Skullknight.Entity;
 using Skullknight.Player.Statemachine;
-using Skullknight.State;
+using xKhano.StateMachines.Entities;
 using UnityEngine.Events;
 using UnityEngine.Serialization;
 

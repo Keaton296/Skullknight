@@ -1,6 +1,8 @@
 using System.Collections;
 using Skullknight.Player.Statemachine;
 using UnityEngine;
+using UnityEngine.InputSystem;
+using UnityEngine.XR;
 
 namespace Player.Statemachine
 {
@@ -13,49 +15,77 @@ namespace Player.Statemachine
 
         public override void ExitState()
         {
-            // controller.wallSlideParticle.Stop();
+            controller.rb.constraints =  controller.rb.constraints ^ RigidbodyConstraints2D.FreezePositionX;
         }
 
         public override void StateFixedUpdate()
         {
-            
+            RaycastHit2D result = Physics2D.BoxCast(
+                controller.wallCheckCollider.bounds.center,
+                controller.wallCheckCollider.bounds.size,
+                0f,
+                Vector2.zero,
+                0f,
+                controller.wallMask);
+            if (controller.groundCollisionChecker.IsColliding)
+            {
+                controller.ChangeState(EPlayerState.Idle);
+            }
+            else if (result.collider == null)
+            {
+                controller.ChangeState(EPlayerState.Falling);
+            }
         }
 
         public override void SubscribeEvents()
         {
-            
+            controller.playerInput.actions["Jump"].performed += OnJumpPerformed;
+        }
+
+        private void OnJumpPerformed(InputAction.CallbackContext obj)
+        {
+            if (controller.rb.velocity.y > 0)
+            {
+                Vector2 vel = controller.SpriteRenderer.flipX ? Vector2.left : Vector2.right;
+                vel *= controller.maxRunningVelocity;
+                vel += Vector2.up * controller.wallJumpForce;
+                controller.rb.velocity = vel;
+            }
+            else controller.rb.velocity = new Vector2(controller.SpriteRenderer.flipX ? -controller.maxRunningVelocity : controller.maxRunningVelocity,controller.jumpVelocity);
+
+            controller.wallSlideCheckDeathCoroutine = controller.StartCoroutine(WallslideDeath());
+            controller.ChangeState(EPlayerState.Falling);
         }
 
         public override void UnsubscribeEvents()
         {
-            
+            controller.playerInput.actions["Jump"].performed -= OnJumpPerformed;
         }
 
         public override void EnterState()
         {
             controller.Animator.Play("WallSlide");
-            // controller.wallSlideParticle.Play();
-            controller.rb.velocity = Vector2.up * controller.rb.velocity.magnitude;
+            controller.rb.constraints =  controller.rb.constraints ^ RigidbodyConstraints2D.FreezePositionX;
+            if (controller.rb.velocity.y < 0)
+            {
+                controller.rb.velocity = Vector2.down * controller.rb.velocity.magnitude;
+            }
+            else
+            {
+                controller.rb.velocity = Vector2.up * controller.rb.velocity.magnitude;
+            }
         }
 
         public override void StateUpdate()
         {
-            if (Input.GetKeyDown(KeyCode.Space) && controller.wallSlideCheckDeathCoroutine == null)
-            {
-                controller.rb.isKinematic = true;
-                controller.rb.velocity = new Vector2(controller.SpriteRenderer.flipX ? -controller.maxRunningVelocity : controller.maxRunningVelocity,controller.jumpVelocity);
-                controller.rb.isKinematic = false;
-                controller.wallSlideCheckDeathCoroutine = controller.StartCoroutine(WallSlideCheckDeath());
-                controller.ChangeState(EPlayerState.Falling);
-            }
+            
         
         }
 
-        public IEnumerator WallSlideCheckDeath()
+        private IEnumerator WallslideDeath()
         {
-            //yield return new WaitForSeconds(wallSlideCheckDeathSeconds);
-            //wallSlideCheckDeathCoroutine = null;
-            yield return null;
+            yield return new WaitForSeconds(controller.wallJumpDeathDuration);
+            controller.wallSlideCheckDeathCoroutine = null;
         }
     }
 }

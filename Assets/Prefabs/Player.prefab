@@ -10694,6 +10694,7 @@ Transform:
   - {fileID: 958897205884873229}
   - {fileID: 1063442463497439368}
   - {fileID: 3873631486358827387}
+  - {fileID: 80061360841058453}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!61 &3117954954856071400
@@ -10835,6 +10836,8 @@ MonoBehaviour:
   recoilImpulse: {fileID: 6350926883227084230}
   bumpImpulse: {fileID: 4729546621273737556}
   landingAudioPlayer: {fileID: 4822043966002468900}
+  wallJumpForce: 10
+  wallJumpDeathDuration: 0.25
   standingCollider: {fileID: 3117954954856071400}
   crouchCollider: {fileID: 8417344755278168180}
   wallCheckCollider: {fileID: 1434827453182627299}
@@ -10953,6 +10956,88 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.6739705, y: 1.5492325}
   m_EdgeRadius: 0
+--- !u!1 &6510332406152349188
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 80061360841058453}
+  - component: {fileID: 4405938927397611354}
+  m_Layer: 0
+  m_Name: Light 2D
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &80061360841058453
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6510332406152349188}
+  serializedVersion: 2
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0.06472659, y: 0.44238567, z: 3.700758}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 6242354947429962711}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &4405938927397611354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6510332406152349188}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 073797afb82c5a1438f328866b10b3f0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_ComponentVersion: 1
+  m_LightType: 3
+  m_BlendStyleIndex: 0
+  m_FalloffIntensity: 0.569
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Intensity: 1
+  m_LightVolumeIntensity: 1
+  m_LightVolumeIntensityEnabled: 0
+  m_ApplyToSortingLayers: 3fa331f2b9531375
+  m_LightCookieSprite: {fileID: 0}
+  m_DeprecatedPointLightCookieSprite: {fileID: 0}
+  m_LightOrder: 0
+  m_AlphaBlendOnOverlap: 0
+  m_OverlapOperation: 0
+  m_NormalMapDistance: 3
+  m_NormalMapQuality: 2
+  m_UseNormalMap: 0
+  m_ShadowIntensityEnabled: 0
+  m_ShadowIntensity: 0.75
+  m_ShadowVolumeIntensityEnabled: 0
+  m_ShadowVolumeIntensity: 0.75
+  m_LocalBounds:
+    m_Center: {x: 0, y: -0.00000011920929, z: 0}
+    m_Extent: {x: 0.9985302, y: 0.99853027, z: 0}
+  m_PointLightInnerAngle: 360
+  m_PointLightOuterAngle: 360
+  m_PointLightInnerRadius: 3.99
+  m_PointLightOuterRadius: 7.36
+  m_ShapeLightParametricSides: 5
+  m_ShapeLightParametricAngleOffset: 0
+  m_ShapeLightParametricRadius: 1
+  m_ShapeLightFalloffSize: 0.5
+  m_ShapeLightFalloffOffset: {x: 0, y: 0}
+  m_ShapePath:
+  - {x: -0.5, y: -0.5, z: 0}
+  - {x: 0.5, y: -0.5, z: 0}
+  - {x: 0.5, y: 0.5, z: 0}
+  - {x: -0.5, y: 0.5, z: 0}
 --- !u!1 &6828998920010279890
 GameObject:
   m_ObjectHideFlags: 0
@@ -11278,6 +11363,7 @@ GameObject:
   - component: {fileID: 1569820640363916680}
   - component: {fileID: 2229621991840357891}
   - component: {fileID: 4822043966002468900}
+  - component: {fileID: 342386707807884745}
   m_Layer: 0
   m_Name: Feet
   m_TagString: Untagged
@@ -11441,3 +11527,21 @@ MonoBehaviour:
   - {fileID: 8300000, guid: 8b4d1dfdf66fc524c89af5b483c7752f, type: 3}
   - {fileID: 8300000, guid: 7c7e95fe918240c40b1584408eec8825, type: 3}
   - {fileID: 8300000, guid: 171c022e6d572074bb36ca73c7adb50b, type: 3}
+--- !u!114 &342386707807884745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 9185792530733156720}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0688af762f53eea4db8eb057e5d5c43c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  audioSource: {fileID: 1569820640363916680}
+  normalizedVolume: 0.25
+  audioClips:
+  - {fileID: 8300000, guid: 0dc7a3998796e0e46bb04ca6aff078f7, type: 3}
+  - {fileID: 8300000, guid: a19aad3dc0582b146821f228eae11ffa, type: 3}
+  - {fileID: 8300000, guid: ba23169e4d063d14b9aeee85323bbe23, type: 3}

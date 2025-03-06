@@ -36,6 +36,25 @@ namespace Player.Statemachine
             }
             else if (horizontal != 0)
             {
+                if (controller.rb.velocity.y > 0 && controller.wallSlideCheckDeathCoroutine == null)
+                {
+                    RaycastHit2D wallcheck = Physics2D.BoxCast(
+                        controller.wallCheckCollider.bounds.center,
+                        controller.wallCheckCollider.bounds.size,
+                        0f,
+                        Vector2.zero,
+                        0f,
+                        controller.wallMask);
+                    if (wallcheck.collider != null)
+                    {
+                        if (Mathf.Sign(wallcheck.point.x - controller.rb.position.x) == Mathf.Sign(horizontal))
+                        {
+                            controller.SetFlip(!controller.SpriteRenderer.flipX);
+                            controller.ChangeState(EPlayerState.Wallsliding);
+                            return;
+                        }
+                    }
+                }
                 controller.Airstrafe(horizontal);
             }
         }

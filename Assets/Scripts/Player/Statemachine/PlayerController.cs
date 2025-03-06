@@ -18,6 +18,8 @@ namespace Skullknight.Player.Statemachine
         [FormerlySerializedAs("attackImpulse")] [SerializeField] public CinemachineImpulseSource recoilImpulse;
         [SerializeField] public CinemachineImpulseSource bumpImpulse;
         [SerializeField] public AudioPlayer landingAudioPlayer;
+        public float wallJumpForce = 2f;
+        public float wallJumpDeathDuration = .25f;
 
         public BoxCollider2D ActiveBoxCollider2D 
         {
@@ -123,7 +125,7 @@ namespace Skullknight.Player.Statemachine
         {
             Instance = this;
             onHealthChanged = new UnityEvent<int>();
-            health = 6;
+            health = 12;
             states.Add(EPlayerState.Idle, new PlayerIdleState(this));
             states.Add(EPlayerState.Running, new PlayerRunningState(this));
             states.Add(EPlayerState.Crouching, new PlayerCrouchingState(this));
@@ -134,6 +136,7 @@ namespace Skullknight.Player.Statemachine
             states.Add(EPlayerState.Hanging, new PlayerHangingState(this));
             states.Add(EPlayerState.Climbing, new PlayerClimbingState(this));
             states.Add(EPlayerState.Hurt, new PlayerHurtState(this));
+            states.Add(EPlayerState.Wallsliding, new PlayerWallSlideState(this));
             states.Add(EPlayerState.CrouchAttack, new PlayerCrouchingAttackState(this));
             states.Add(EPlayerState.AttackOne, new PlayerAttackingState(this,"atk0",.33f,0.33f,EPlayerState.AttackTwo));
             states.Add(EPlayerState.AttackTwo, new PlayerAttackingState(this,"atk1",.33f,0.33f,null));

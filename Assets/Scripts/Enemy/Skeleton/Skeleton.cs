@@ -1,15 +1,14 @@
-using System.Collections;
-using System.Collections.Generic;
 using Skullknight.Core;
 using Skullknight.Enemy.Skeleton;
 using Skullknight.Entity;
 using Skullknight.Player.Statemachine;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.Splines;
 
 namespace Skullknight
 {
-    public class Skeleton : EntityController<Skeleton.ESkeletonState,Skeleton>,IDamageable
+    public class Skeleton : EntityController<Skeleton.ESkeletonState,Skeleton>
     {
         public BoxCollider2D collider;
         [SerializeField] private Collider2D atkCollider;
@@ -49,6 +48,7 @@ namespace Skullknight
         }
         private void Awake()
         {
+            //onHealthChanged = new UnityEvent<int>(); 
             states.Add(ESkeletonState.Waiting, new SkeletonWaitingState(this));
             states.Add(ESkeletonState.Patrol, new SkeletonPatrolState(this));
             states.Add(ESkeletonState.Hurt, new SkeletonHurtState(this));
